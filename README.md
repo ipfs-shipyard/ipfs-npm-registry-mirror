@@ -20,7 +20,7 @@ $ cd ipfs-registry-mirror
 $ ./deploy.sh
 ```
 
-## Overview
+## Overview
 
 There are two docker images, a [replication-master](./packages/replication-master/README.md) which continually syncs the npm registry and all of it's packages and a [registry-mirror](./packages/registry-mirror/README.md) which serves files to clients.
 
