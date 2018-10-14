@@ -20,12 +20,20 @@ const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMi
     createIfMissing
   }
 
+  const store = new S3Store(path, storeconfig)
+
+  class Store {
+    constructor () {
+      return store
+    }
+  }
+
   return new IPFSRepo(path, {
     storageBackends: {
-      root: S3Store,
-      blocks: S3Store,
-      keys: S3Store,
-      datastore: S3Store
+      root: Store,
+      blocks: Store,
+      keys: Store,
+      datastore: Store
     },
     storageBackendconfig: {
       root: storeconfig,
