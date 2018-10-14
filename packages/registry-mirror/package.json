@@ -1,6 +1,6 @@
 {
   "name": "ipfs-npm-registry-mirror",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Serves tarballs and json manifests",
   "main": "src/cli/bin.js",
   "bin": {
