@@ -1,6 +1,6 @@
 # ipfs-registry-mirror
 
-![Alt text](./img/npm-on-ipfs.svg)
+![npm on IPFS](./img/npm-on-ipfs.svg)
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
