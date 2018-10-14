@@ -30,6 +30,7 @@ services:
       context: .
       dockerfile: packages/replication-master/Dockerfile
     restart: 'always'
+    env_file: .env
     environment:
       - VIRTUAL_HOST=replication.registry.js.ipfs.io
       - VIRTUAL_PORT=8080
@@ -56,6 +57,7 @@ services:
       context: .
       dockerfile: packages/registry-mirror/Dockerfile
     restart: 'always'
+    env_file: .env
     environment:
       - VIRTUAL_HOST=registry.js.ipfs.io
       - VIRTUAL_PORT=8080
