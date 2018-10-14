@@ -1,0 +1,16 @@
+# ipfs-npm-replication-master
+
+![Alt text](https://github.com/ipfs-shipyard/ipfs-registry-mirror/img/npm-on-ipfs.svg)
+
+[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai)
+[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
+[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
+[![Build Status](https://ci.ipfs.team/buildStatus/icon?job=IPFS%20Shipyard/ipfs-registry-mirror/master)](https://ci.ipfs.team/job/IPFS%20Shipyard/job/ipfs-registry-mirror/job/master/)
+[![Code Coverage](https://codecov.io/gh/ipfs-shipyard/ipfs-npm-replication-master/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs-shipyard/ipfs-npm-replication-master)
+[![Dependency Status](https://david-dm.org/ipfs-shipyard/ipfs-npm-replication-master.svg?style=flat-square)](https://david-dm.org/ipfs-shipyard/ipfs-npm-replication-master)
+
+> Continually syncs the npm registry and publishes new modules to IPFS
+
+## Lead Maintainer
+
+[Alex Potsides](https://github.com/achingbrain)

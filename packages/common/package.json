@@ -1,0 +1,43 @@
+{
+  "name": "ipfs-registry-mirror-common",
+  "version": "1.0.0",
+  "description": "Shared libraries & utilities from ipfs-npm",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha",
+    "coverage": "nyc --reporter=html --reporter=text mocha",
+    "lint": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipfs-shipyard/ipfs-registry-mirror.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ipfs-shipyard/ipfs-registry-mirror/issues"
+  },
+  "homepage": "https://github.com/ipfs-shipyard/ipfs-registry-mirror#readme",
+  "dependencies": {
+    "aws-sdk": "^2.325.0",
+    "cids": "~0.5.5",
+    "datastore-s3": "~0.2.0",
+    "debug": "^4.0.1",
+    "express": "^4.16.3",
+    "express-prom-bundle": "^4.2.1",
+    "follow-registry": "achingbrain/follow-registry",
+    "ipfs": "~0.32.2",
+    "once": "^1.4.0",
+    "promise-delay": "^2.1.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "dirty-chai": "^2.0.1",
+    "mocha": "^5.2.0",
+    "mock-require": "^3.0.2",
+    "nyc": "^13.1.0",
+    "sinon": "^6.1.5",
+    "standard": "^12.0.1"
+  }
+}
