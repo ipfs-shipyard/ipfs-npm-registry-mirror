@@ -25,7 +25,7 @@ module.exports = (overrides = {}) => {
       port: option(process.env.IPFS_SWARM_PORT, overrides.ipfsPort),
       prefix: option(process.env.IPFS_MFS_PREFIX, overrides.ipfsMfsPrefix),
       flush: option(toBoolean(process.env.IPFS_FLUSH), overrides.ipfsFlush),
-      store: option(toBoolean(process.env.IPFS_STORE_TYPE), overrides.ipfsStoreType),
+      store: option(process.env.IPFS_STORE_TYPE, overrides.ipfsStoreType),
 
       s3: {
         region: option(process.env.STORE_S3_REGION, overrides.storeS3Region),
