@@ -21,4 +21,6 @@ COPY ./packages/registry-mirror/src /app/packages/registry-mirror/src
 
 WORKDIR /app/packages/registry-mirror
 
+RUN export STORE_S3_PATH="${STORE_S3_PATH:-$HOSTNAME}"
+
 CMD node .
