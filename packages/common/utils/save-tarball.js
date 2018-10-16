@@ -10,7 +10,7 @@ const {
   PassThrough
 } = require('stream')
 
-const saveTarball = (config, packageName, versionNumber, ipfs, done) => {
+const saveTarball = (config, packageName, versionNumber, ipfs, done = () => {}) => {
   const outputStream = new PassThrough()
 
   loadManifest(config, ipfs, packageName)
@@ -33,12 +33,12 @@ const saveTarball = (config, packageName, versionNumber, ipfs, done) => {
 
       await updateCid(config, ipfs, packageName, versionNumber, cid)
 
-      if (done) {
-        done()
-      }
+      done()
     })
     .catch(error => {
       console.error(`💥 Error storing tarball ${packageName} ${versionNumber} - ${error.stack}`)
+
+      done(error)
     })
 
   return outputStream

@@ -141,6 +141,82 @@ describe('replication', function () {
     })
   })
 
+  it('should download a module even if the previous one fails', async () => {
+    const module1 = {
+      name: `new-module-${hat()}`,
+      version: '1.0.0'
+    }
+    const module2 = {
+      name: `new-module-${hat()}`,
+      version: '1.0.0'
+    }
+    const tarball1 = {
+      path: `/${module1.name}/-/${module1.name}-${module1.version}.tgz`,
+      content: 'I am some binary'
+    }
+    const tarball2 = {
+      path: `/${module2.name}/-/${module2.name}-${module2.version}.tgz`,
+      content: 'I am some binary'
+    }
+
+    const data1 = {
+      name: module1.name,
+      json: {
+        name: module1.name,
+        _rev: '12345',
+        versions: {
+          [module1.version]: {
+            dist: {
+              tarball: `${config.registry}${tarball1.path}`,
+              shasum: '3f9f726832b39c2cc7ac515c8a6c97b94b608b0e'
+            }
+          }
+        }
+      }
+    }
+    const data2 = {
+      name: module2.name,
+      json: {
+        name: module2.name,
+        _rev: '12345',
+        versions: {
+          [module2.version]: {
+            dist: {
+              tarball: `${config.registry}${tarball2.path}`,
+              shasum: '3f9f726832b39c2cc7ac515c8a6c97b94b608b0e'
+            }
+          }
+        }
+      }
+    }
+
+    skim.publish(data1)
+    skim.publish(data2, tarball2)
+
+    let sawModule1Update = false
+
+    return new Promise((resolve, reject) => {
+      replicationMaster.app.on('processed', async (event) => {
+        if (event.name === module1.name) {
+          sawModule1Update = true
+          return
+        }
+
+        try {
+          expect(sawModule1Update).to.be.true()
+          expect(event.name).to.equal(module2.name)
+          expect(Object.keys(event.versions).length).to.equal(1)
+          expect(event.versions[module2.version].dist.source).to.equal(`${config.registry}${tarball2.path}`)
+          expect(event.versions[module2.version].dist.tarball).to.equal(`${config.externalProtocol}://${config.externalHost}${tarball2.path}`)
+        } catch (error) {
+          return reject(error)
+        }
+
+        resolve()
+      })
+    })
+  })
+
   it('should survive an invalid update', async () => {
     const module = {
       name: `new-module-${hat()}`,
