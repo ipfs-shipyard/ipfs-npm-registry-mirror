@@ -67,6 +67,7 @@ services:
       - EXTERNAL_PROTOCOL=https
       - EXTERNAL_HOST=registry.js.ipfs.io
       - EXTERNAL_PORT=443
+      - EXTERNAL_IP=35.178.192.119
       - IPFS_STORE_TYPE=s3
       - STORE_S3_REGION=${STORE_S3_REGION}
       - STORE_S3_BUCKET=${STORE_S3_BUCKET}
