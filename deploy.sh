@@ -14,4 +14,4 @@ docker-compose build --no-cache replicate registry
 docker-compose stop replicate registry
 
 # Restart using the new image
-docker-compose up -d --no-deps --force-recreate --scale registry=5 replicate registry
+docker-compose up -d --no-deps --scale registry=5 replicate registry
