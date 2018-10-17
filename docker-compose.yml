@@ -47,10 +47,10 @@ services:
       - STORE_S3_ACCESS_KEY_ID=${STORE_S3_ACCESS_KEY_ID}
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
       - STORE_S3_PATH=replicate
-      - IPFS_SWARM_PORT=40020
+      - IPFS_SWARM_PORT=4001
     ports:
       - "8080:8080"
-      - "40020:40020"
+      - "4001:4001"
 
   registry:
     build:

@@ -2,7 +2,6 @@
 
 const S3 = require('aws-sdk/clients/s3')
 const S3Store = require('datastore-s3')
-const S3Lock = require('datastore-s3/examples/full-s3-repo/s3-lock')
 const IPFSRepo = require('ipfs-repo')
 
 const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMissing }) => {
@@ -28,6 +27,23 @@ const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMi
     }
   }
 
+  const lock = {
+    getLockfilePath: () => {},
+    lock: (dir, cb) => {
+      cb(null, lock.getCloser())
+    },
+    getCloser: (path) => {
+      return {
+        close: (cb) => {
+          cb()
+        }
+      }
+    },
+    locked: (dir, cb) => {
+      callback(null, false)
+    }
+  }
+
   return new IPFSRepo(path, {
     storageBackends: {
       root: Store,
@@ -41,7 +57,7 @@ const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMi
       keys: storeconfig,
       datastore: storeconfig
     },
-    lock: new S3Lock(new S3Store('', storeconfig))
+    lock: lock
   })
 }
 
