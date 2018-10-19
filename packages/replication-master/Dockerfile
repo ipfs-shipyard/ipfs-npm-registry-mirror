@@ -22,4 +22,4 @@ COPY ./packages/replication-master/src /app/packages/replication-master/src
 
 WORKDIR /app/packages/replication-master
 
-CMD node .
+CMD node --max-old-space-size=4096 . 

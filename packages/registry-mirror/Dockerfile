@@ -23,4 +23,4 @@ WORKDIR /app/packages/registry-mirror
 
 RUN export STORE_S3_PATH="${STORE_S3_PATH:-$HOSTNAME}"
 
-CMD node .
+CMD node --max-old-space-size=4096 .
