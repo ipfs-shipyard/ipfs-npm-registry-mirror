@@ -32,7 +32,7 @@ services:
     restart: 'always'
     env_file: .env
     volumes:
-       - /usr/ipfs-npm-registry-mirror:/usr/ipfs-npm-registry-mirror
+       - /usr/local/ipfs-npm-registry-mirror:/usr/local/ipfs-npm-registry-mirror
     environment:
       - VIRTUAL_HOST=replication.registry.js.ipfs.io
       - VIRTUAL_PORT=8080
@@ -50,7 +50,7 @@ services:
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
       - STORE_S3_PATH=replicate
       - IPFS_SWARM_PORT=4001
-      - FOLLOW_SEQ_FILE=/usr/ipfs-npm-registry-mirror/seq.txt
+      - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
     ports:
       - "8080:8080"
       - "4001:4001"
