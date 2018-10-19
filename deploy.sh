@@ -8,7 +8,7 @@ docker rmi $(docker images -q -f "dangling=true") || echo 'Failed to remove old 
 git pull
 
 # Build a Docker image
-docker-compose build --no-cache replicate registry
+docker-compose build replicate registry
 
 # Shut down the registry containers
 docker-compose stop replicate registry
