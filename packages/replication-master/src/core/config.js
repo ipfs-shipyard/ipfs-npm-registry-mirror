@@ -46,7 +46,7 @@ module.exports = (overrides = {}) => {
       skim: option(process.env.FOLLOW_SKIM, overrides.followSkim),
       registry: option(process.env.FOLLOW_REGISTTRY, overrides.followRegistry),
       concurrency: option(Number(process.env.FOLLOW_CONCURRENCY), overrides.followConcurrency),
-      seqFile: option(Number(process.env.FOLLOW_SEQ_FILE), overrides.followSeqFile)
+      seqFile: option(process.env.FOLLOW_SEQ_FILE, overrides.followSeqFile)
     },
 
     clone: {
