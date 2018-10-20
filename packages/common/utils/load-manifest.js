@@ -6,6 +6,9 @@ const saveManifest = require('./save-manifest')
 const replaceTarballUrls = require('./replace-tarball-urls')
 const timeout = require('./timeout-promise')
 
+// the timeout after which we will fetch the manifest from npm instead
+const READ_TIMEOUT = 10000
+
 const loadManifest = async (config, ipfs, packageName) => {
   let mfsVersion = {}
   let npmVersion = {}
@@ -16,7 +19,7 @@ const loadManifest = async (config, ipfs, packageName) => {
   try {
     log(`Reading from mfs ${mfsPath}`)
 
-    mfsVersion = JSON.parse(await timeout(ipfs.files.read(mfsPath), 1000))
+    mfsVersion = JSON.parse(await timeout(ipfs.files.read(mfsPath), READ_TIMEOUT))
 
     log(`Read from mfs ${mfsPath}`)
   } catch (error) {
