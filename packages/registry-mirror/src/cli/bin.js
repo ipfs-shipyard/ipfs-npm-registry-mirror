@@ -96,7 +96,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
 
     .option('request-max-sockets', {
       describe: 'How many concurrent http requests to make while cloning the repo',
-      default: 100
+      default: 50
     })
     .option('request-retries', {
       describe: 'How many times to retry when downloading manifests and tarballs from the registry',

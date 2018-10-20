@@ -40,7 +40,7 @@ services:
       - LETSENCRYPT_EMAIL=alex.potsides@protocol.ai
       - NODE_ENV=production
       - EXTERNAL_PROTOCOL=https
-      - EXTERNAL_HOST=localhost
+      - EXTERNAL_HOST=registry.js.ipfs.io
       - EXTERNAL_PORT=443
       - EXTERNAL_IP=35.178.192.119
       - IPFS_STORE_TYPE=s3
