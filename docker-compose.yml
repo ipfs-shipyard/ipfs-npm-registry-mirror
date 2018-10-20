@@ -32,7 +32,7 @@ services:
     restart: 'always'
     env_file: .env
     volumes:
-       - /usr/local/ipfs-npm-registry-mirror:/usr/local/ipfs-npm-registry-mirror
+       - /usr/local/ipfs-npm-registry-mirror
     environment:
       - VIRTUAL_HOST=replication.registry.js.ipfs.io
       - VIRTUAL_PORT=8080
