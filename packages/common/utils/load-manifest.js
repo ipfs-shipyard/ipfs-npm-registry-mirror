@@ -9,7 +9,7 @@ const timeout = require('./timeout-promise')
 // the timeout after which we will fetch the manifest from npm instead
 const READ_TIMEOUT = 10000
 
-const loadManifest = async (config, ipfs, packageName) => {
+const loadManifest = async (config, ipfs, packageName, localOnly) => {
   let mfsVersion = {}
   let npmVersion = {}
 
@@ -19,7 +19,11 @@ const loadManifest = async (config, ipfs, packageName) => {
   try {
     log(`Reading from mfs ${mfsPath}`)
 
-    mfsVersion = JSON.parse(await timeout(ipfs.files.read(mfsPath), READ_TIMEOUT))
+    if (localOnly) {
+      mfsVersion = JSON.parse(ipfs.files.read(mfsPath))
+    } else {
+      mfsVersion = JSON.parse(await timeout(ipfs.files.read(mfsPath), READ_TIMEOUT))
+    }
 
     log(`Read from mfs ${mfsPath}`)
   } catch (error) {
@@ -30,12 +34,16 @@ const loadManifest = async (config, ipfs, packageName) => {
     } else {
       log(`Could not read ${mfsPath}`, error)
     }
+
+    if (localOnly) {
+      throw error
+    }
   }
 
   const modified = new Date((mfsVersion.time && mfsVersion.time.modified) || 0)
   const willDownload = (Date.now() - config.registryUpdateInterval) > modified.getTime()
 
-  if (willDownload) {
+  if (willDownload && !localOnly) {
     try {
       log(`Fetching ${npmUrl}`)
       const start = Date.now()
@@ -50,7 +58,7 @@ const loadManifest = async (config, ipfs, packageName) => {
   }
 
   if (!mfsVersion._rev && !npmVersion._rev) {
-    throw new Error(`Not found, tried npm: ${willDownload}`)
+    throw new Error(`Not found, would have tried npm: ${willDownload}, local only: ${localOnly}`)
   }
 
   if (mfsVersion._rev && (!npmVersion._rev || npmVersion._rev === mfsVersion._rev)) {

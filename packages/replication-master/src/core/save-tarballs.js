@@ -31,7 +31,7 @@ const saveTarballs = async (config, pkg, ipfs) => {
 
         const fn = () => {
           return new Promise((resolve, reject) => {
-            const stream = saveTarball(config, pkg.name, versionNumber, ipfs, (error) => {
+            const stream = saveTarball(config, pkg.name, versionNumber, ipfs, true, (error) => {
               if (error) {
                 return reject(error)
               }

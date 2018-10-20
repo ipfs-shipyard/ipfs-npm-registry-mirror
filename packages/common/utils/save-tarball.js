@@ -10,10 +10,10 @@ const {
   PassThrough
 } = require('stream')
 
-const saveTarball = (config, packageName, versionNumber, ipfs, done = () => {}) => {
+const saveTarball = (config, packageName, versionNumber, ipfs, localOnly, done = () => {}) => {
   const outputStream = new PassThrough()
 
-  loadManifest(config, ipfs, packageName)
+  loadManifest(config, ipfs, packageName, localOnly)
     .then(async (manifest) => {
       const version = manifest.versions[versionNumber]
 
@@ -31,7 +31,7 @@ const saveTarball = (config, packageName, versionNumber, ipfs, done = () => {}) 
 
       console.info(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
 
-      await updateCid(config, ipfs, packageName, versionNumber, cid)
+      await updateCid(config, ipfs, packageName, versionNumber, cid, localOnly)
 
       done()
     })
@@ -62,14 +62,14 @@ const validate = (version, versionNumber, packageName) => {
   }
 }
 
-const updateCid = async (config, ipfs, packageName, versionNumber, cid) => {
+const updateCid = async (config, ipfs, packageName, versionNumber, cid, localOnly) => {
   while (true) {
-    let manifest = await loadManifest(config, ipfs, packageName)
+    let manifest = await loadManifest(config, ipfs, packageName, localOnly)
     manifest.versions[versionNumber].dist.cid = cid
 
     await saveManifest(manifest, ipfs, config)
 
-    manifest = await loadManifest(config, ipfs, packageName)
+    manifest = await loadManifest(config, ipfs, packageName, localOnly)
 
     if (manifest.versions[versionNumber].dist.cid === cid) {
       return

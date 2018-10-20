@@ -65,7 +65,7 @@ describe('save-tarball', () => {
     loadManifest.withArgs(config, ipfs, pkg.name)
       .resolves(pkg)
 
-    saveTarball(config, pkg.name, versionNumber, ipfs, () => {
+    saveTarball(config, pkg.name, versionNumber, ipfs, false, () => {
       expect(request.called).to.be.false()
 
       done()
@@ -113,7 +113,7 @@ describe('save-tarball', () => {
         return Promise.resolve(stream)
       })
 
-    saveTarball(config, pkg.name, versionNumber, ipfs, () => {
+    saveTarball(config, pkg.name, versionNumber, ipfs, false, () => {
       expect(request.called).to.be.true()
 
       done()
