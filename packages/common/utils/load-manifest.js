@@ -20,7 +20,9 @@ const loadManifest = async (config, ipfs, packageName) => {
 
     log(`Read from mfs ${mfsPath}`)
   } catch (error) {
-    if (error.code === 'ETIMEOUT' || error.message.includes('file does not exist')) {
+    if (error.code === 'ETIMEOUT') {
+      log(`Timed out reading ${mfsPath}`)
+    } else if (error.message.includes('file does not exist')) {
       log(`${mfsPath} not in MFS`)
     } else {
       log(`Could not read ${mfsPath}`, error)
