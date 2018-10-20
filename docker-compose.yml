@@ -48,7 +48,7 @@ services:
       - STORE_S3_BUCKET=${STORE_S3_BUCKET}
       - STORE_S3_ACCESS_KEY_ID=${STORE_S3_ACCESS_KEY_ID}
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
-      - STORE_S3_PATH=replicate
+      - STORE_S3_PATH=replication-master
       - IPFS_SWARM_PORT=4001
       - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
     ports:

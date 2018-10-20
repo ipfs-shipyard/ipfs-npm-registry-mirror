@@ -55,7 +55,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('ipfs-mfs-prefix', {
       describe: 'Which mfs prefix to use',
-      default: '/commons-registry'
+      default: '/npm-registry'
     })
     .option('ipfs-flush', {
       describe: 'Whether to flush the MFS cache',
