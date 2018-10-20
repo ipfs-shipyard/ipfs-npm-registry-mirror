@@ -20,7 +20,7 @@ const loadManifest = async (config, ipfs, packageName, localOnly) => {
     log(`Reading from mfs ${mfsPath}`)
 
     if (localOnly) {
-      mfsVersion = JSON.parse(ipfs.files.read(mfsPath))
+      mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
     } else {
       mfsVersion = JSON.parse(await timeout(ipfs.files.read(mfsPath), READ_TIMEOUT))
     }
