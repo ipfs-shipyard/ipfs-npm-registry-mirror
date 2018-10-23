@@ -1,7 +1,7 @@
 FROM node:10
 
 EXPOSE 8080
-EXPOSE 40020
+EXPOSE 4001
 
 RUN export NODE_ENV=production
 RUN npm set unsafe-perm true
@@ -22,4 +22,4 @@ COPY ./packages/replication-master/src /app/packages/replication-master/src
 
 WORKDIR /app/packages/replication-master
 
-CMD node --max-old-space-size=4096 . 
+CMD node --max-old-space-size=4096 .
