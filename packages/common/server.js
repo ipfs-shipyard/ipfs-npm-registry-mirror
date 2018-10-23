@@ -109,10 +109,10 @@ const getAnIPFS = promisify((config, callback) => {
       Addresses: {
         Swarm: [
           `/ip4/0.0.0.0/tcp/${config.ipfs.port || randomPort()}`,
-          `/ip4/127.0.0.1/tcp/${randomPort()}/ws`
+          `/ip4/127.0.0.1/tcp/${config.ipfs.wsPort || randomPort()}/ws`
         ],
-        API: `/ip4/127.0.0.1/tcp/${randomPort()}`,
-        Gateway: `/ip4/127.0.0.1/tcp/${randomPort()}`
+        API: `/ip4/127.0.0.1/tcp/${config.ipfs.apiPort || randomPort()}`,
+        Gateway: `/ip4/127.0.0.1/tcp/${config.ipfs.gatewayPort || randomPort()}`
       }
     }
   })

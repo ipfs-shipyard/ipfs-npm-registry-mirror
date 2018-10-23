@@ -23,6 +23,9 @@ module.exports = (overrides = {}) => {
 
     ipfs: {
       port: option(process.env.IPFS_SWARM_PORT, overrides.ipfsPort),
+      wsPort: option(process.env.IPFS_SWARM_PORT, overrides.ipfsWsPort),
+      apiPort: option(process.env.IPFS_SWARM_PORT, overrides.ipfsApiPort),
+      gatewayPort: option(process.env.IPFS_SWARM_PORT, overrides.ipfsGatewayPort),
       prefix: option(process.env.IPFS_MFS_PREFIX, overrides.ipfsMfsPrefix),
       flush: option(toBoolean(process.env.IPFS_FLUSH), overrides.ipfsFlush),
       store: option(process.env.IPFS_STORE_TYPE, overrides.ipfsStoreType),

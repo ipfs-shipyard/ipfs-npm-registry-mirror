@@ -50,7 +50,19 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
 
     .option('ipfs-port', {
       describe: 'Which port to accept IPFS connections on',
-      default: 40020
+      default: 4002
+    })
+    .option('ipfs-ws-port', {
+      describe: 'Which port to accept IPFS connections on',
+      default: 4003
+    })
+    .option('ipfs-api-port', {
+      describe: 'Which port to accept IPFS connections on',
+      default: 5002
+    })
+    .option('ipfs-gateway-port', {
+      describe: 'Which port to accept IPFS connections on',
+      default: 9090
     })
     .option('ipfs-mfs-prefix', {
       describe: 'Which mfs prefix to use',
@@ -102,7 +114,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('follow-concurrency', {
       describe: 'How many registry updates to process at once',
-      default: 10
+      default: 100
     })
     .option('follow-seq-file', {
       describe: 'Where to store the seq file of how far through the npm feed we are',
@@ -111,7 +123,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
 
     .option('clone-max-requests', {
       describe: 'How many concurrent requests to make to npm when downloading tarballs',
-      default: 50
+      default: 100
     })
 
     .option('request-max-sockets', {
