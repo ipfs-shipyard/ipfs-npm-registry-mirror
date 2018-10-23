@@ -52,9 +52,9 @@ services:
       - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
     ports:
       - "8080:8080"
+      - "4001:4001"
       - "4002:4002"
-      - "4003:4003"
-      - "5002:5002"
+      - "5001:5001"
       - "9090:9090"
 
   registry:
