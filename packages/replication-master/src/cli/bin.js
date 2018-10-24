@@ -52,18 +52,6 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Which port to accept IPFS connections on',
       default: 4001
     })
-    .option('ipfs-ws-port', {
-      describe: 'Which port to accept IPFS websocket connections on',
-      default: 4002
-    })
-    .option('ipfs-api-port', {
-      describe: 'Which port to put the api server on',
-      default: 5001
-    })
-    .option('ipfs-gateway-port', {
-      describe: 'Which port to put the gateway on',
-      default: 9090
-    })
     .option('ipfs-mfs-prefix', {
       describe: 'Which mfs prefix to use',
       default: '/npm-registry'

@@ -17,6 +17,9 @@ const createReplicationMaster = async () => {
       // empty directory
       root: '/ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn',
       topic
+    }),
+    '/-/worker': JSON.stringify({
+      index: 0
     })
   })
 

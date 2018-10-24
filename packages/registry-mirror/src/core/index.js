@@ -8,9 +8,19 @@ const server = require('ipfs-registry-mirror-common/server')
 const tarball = require('./tarball')
 const manifest = require('./manifest')
 const root = require('./root')
+const request = require('ipfs-registry-mirror-common/utils/retry-request')
 
 module.exports = async (options) => {
   options = config(options)
+
+  const worker = await request(Object.assign({}, config.request, {
+    uri: `${options.pubsub.master}/-/worker`,
+    json: true,
+    retries: 100,
+    retryDelay: 5000
+  }))
+
+  options.ipfs.s3.path = `worker-${worker.index}`
 
   const result = await server(options, async (app, ipfs) => {
     app.get('/', root(options, ipfs, app))

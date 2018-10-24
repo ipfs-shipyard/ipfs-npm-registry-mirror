@@ -53,9 +53,6 @@ services:
     ports:
       - "8080:8080"
       - "4001:4001"
-      - "4002:4002"
-      - "5001:5001"
-      - "9090:9090"
 
   registry:
     build:
@@ -79,6 +76,5 @@ services:
       - STORE_S3_ACCESS_KEY_ID=${STORE_S3_ACCESS_KEY_ID}
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
       - PUBSUB_MASTER=http://replicate:8080
-      - IPFS_SWARM_PORT=50020
     links:
       - replicate
