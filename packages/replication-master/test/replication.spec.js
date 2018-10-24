@@ -377,4 +377,19 @@ describe('replication', function () {
       })
     })
   })
+
+  it('should increment worker ids', async () => {
+    const worker1 = await request({
+      uri: `${replicationMasterUrl}/-/worker`,
+      json: true
+    })
+
+    const worker2 = await request({
+      uri: `${replicationMasterUrl}/-/worker`,
+      json: true
+    })
+
+    expect(worker1.index).to.equal(0)
+    expect(worker2.index).to.equal(1)
+  })
 })
