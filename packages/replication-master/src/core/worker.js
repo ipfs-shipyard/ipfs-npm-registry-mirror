@@ -15,6 +15,6 @@ module.exports = () => {
     response.setHeader('Content-type', 'application/json; charset=utf-8')
     response.send(JSON.stringify(info, null, request.query.format === undefined ? 0 : 2))
 
-    lastWorker = lastWorker++
+    lastWorker += 1
   }
 }
