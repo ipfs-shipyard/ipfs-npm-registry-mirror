@@ -50,8 +50,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
 
     .option('ipfs-port', {
-      describe: 'Which port to accept IPFS connections on',
-      default: 40020
+      describe: 'Which port to accept IPFS connections on'
     })
     .option('ipfs-mfs-prefix', {
       describe: 'Which mfs prefix to use',
