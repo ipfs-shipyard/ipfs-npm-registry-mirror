@@ -40,7 +40,7 @@ const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMi
       }
     },
     locked: (dir, cb) => {
-      callback(null, false)
+      cb(null, false)
     }
   }
 
