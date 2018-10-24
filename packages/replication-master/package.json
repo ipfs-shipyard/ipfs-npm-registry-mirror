@@ -1,6 +1,6 @@
 {
   "name": "ipfs-npm-replication-master",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Replicates the npm registry and puts it onto IPFS",
   "main": "src/cli/bin.js",
   "bin": {
@@ -26,7 +26,7 @@
     "dnscache": "^1.0.1",
     "follow-registry": "achingbrain/follow-registry",
     "hat": "~0.0.3",
-    "ipfs-registry-mirror-common": "^1.0.1",
+    "ipfs-registry-mirror-common": "^1.0.2",
     "promise-delay": "^2.1.0",
     "yargs": "^12.0.1"
   },
