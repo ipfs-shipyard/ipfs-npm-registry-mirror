@@ -1,6 +1,8 @@
-# ipfs-registry-mirror
+<p align="center">
+  <img src="https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror/raw/master/img/npm-on-ipfs.svg?sanitize=true" alt="npm on IPFS logo" width="256" />
+</p>
 
-![npm on IPFS](./img/npm-on-ipfs.svg)
+# ipfs-npm-registry-mirror
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai)
 [![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)

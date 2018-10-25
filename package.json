@@ -1,5 +1,5 @@
 {
-  "name": "ipfs-registry-mirror",
+  "name": "ipfs-npm-registry-mirror",
   "version": "1.0.0",
   "description": "Install your dependencies from IPFS",
   "scripts": {
