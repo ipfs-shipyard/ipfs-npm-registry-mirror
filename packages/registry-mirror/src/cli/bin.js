@@ -50,7 +50,8 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
 
     .option('ipfs-port', {
-      describe: 'Which port to accept IPFS connections on'
+      describe: 'Which port to accept IPFS connections on',
+      default: 4001
     })
     .option('ipfs-mfs-prefix', {
       describe: 'Which mfs prefix to use',
@@ -93,10 +94,6 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       default: 'https://replication.registry.js.ipfs.io'
     })
 
-    .option('request-max-sockets', {
-      describe: 'How many concurrent http requests to make while cloning the repo',
-      default: 50
-    })
     .option('request-retries', {
       describe: 'How many times to retry when downloading manifests and tarballs from the registry',
       default: 5

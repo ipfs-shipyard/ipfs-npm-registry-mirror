@@ -6,7 +6,7 @@ const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 let info
 let lastUpdate
 
-const findInfo = async (config, ipfs) => {
+const findInfo = async (config, ipfs, worker) => {
   if (!lastUpdate || lastUpdate < (Date.now() - 30000)) {
     const [
       id,
@@ -17,12 +17,13 @@ const findInfo = async (config, ipfs) => {
     ])
 
     id.addresses = [
-      `/ip4/${config.external.ip}/tcp/${config.ipfs.port}/ipfs/${id.id}`,
-      `/dns4/${config.external.host}/tcp/${config.ipfs.port}/ipfs/${id.id}`
+      `/ip4/${config.external.ip}/tcp/${config.external.ipfsPort}/ipfs/${id.id}`,
+      `/dns4/${config.external.host}/tcp/${config.external.ipfsPort}/ipfs/${id.id}`
     ]
 
     info = {
       name: pkg.name,
+      index: worker.index,
       version: pkg.version,
       ipfs: id,
       peers: peers.map(peer => peer.id.toB58String()),
@@ -36,10 +37,10 @@ const findInfo = async (config, ipfs) => {
   return info
 }
 
-module.exports = (config, ipfs, app) => {
+module.exports = (config, ipfs, app, worker) => {
   return async (request, response, next) => {
     response.statusCode = 200
     response.setHeader('Content-type', 'application/json; charset=utf-8')
-    response.send(JSON.stringify(await findInfo(config, request.app.locals.ipfs), null, request.query.format === undefined ? 0 : 2))
+    response.send(JSON.stringify(await findInfo(config, request.app.locals.ipfs, worker), null, request.query.format === undefined ? 0 : 2))
   }
 }

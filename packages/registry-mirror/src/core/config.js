@@ -16,6 +16,7 @@ module.exports = (overrides = {}) => {
     },
 
     external: {
+      ip: option(process.env.EXTERNAL_IP, overrides.externalIp),
       protocol: option(process.env.EXTERNAL_PROTOCOL, overrides.externalProtocol),
       host: option(process.env.EXTERNAL_HOST, overrides.externalHost),
       port: option(process.env.EXTERNAL_PORT, overrides.externalPort)
@@ -46,9 +47,6 @@ module.exports = (overrides = {}) => {
     },
 
     request: {
-      pool: {
-        maxSockets: option(Number(process.env.REQUEST_MAX_SOCKETS), overrides.requestMaxSockets)
-      },
       retries: option(process.env.REQUEST_RETRIES, overrides.requestRetries),
       retryDelay: option(process.env.REQUEST_RETRY_DELAY, overrides.requestRetryDelay),
       timeout: option(process.env.REQUEST_TIMEOUT, overrides.requestTimeout)

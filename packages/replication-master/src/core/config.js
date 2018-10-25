@@ -50,13 +50,10 @@ module.exports = (overrides = {}) => {
     },
 
     clone: {
-      maxRequests: option(Number(process.env.CLONE_MAX_REQUESTS), overrides.cloneMaxRequests)
+      delay: option(Number(process.env.CLONE_DELAY), overrides.cloneDelay)
     },
 
     request: {
-      pool: {
-        maxSockets: option(Number(process.env.REQUEST_MAX_SOCKETS), overrides.requestMaxSockets)
-      },
       retries: option(process.env.REQUEST_RETRIES, overrides.requestRetries),
       retryDelay: option(process.env.REQUEST_RETRY_DELAY, overrides.requestRetryDelay),
       timeout: option(process.env.REQUEST_TIMEOUT, overrides.requestTimeout)

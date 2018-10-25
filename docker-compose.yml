@@ -50,6 +50,7 @@ services:
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
       - STORE_S3_PATH=replication-master
       - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
+      - CLONE_DELAY=30000
     ports:
       - "8080:8080"
       - "4001:4001"
@@ -60,6 +61,8 @@ services:
       dockerfile: packages/registry-mirror/Dockerfile
     restart: 'always'
     env_file: .env
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     environment:
       - VIRTUAL_HOST=registry.js.ipfs.io
       - VIRTUAL_PORT=8080
@@ -78,3 +81,15 @@ services:
       - PUBSUB_MASTER=http://replicate:8080
     links:
       - replicate
+    ports:
+      - "10000-10009:10000"
+      - "10010-10019:10001"
+      - "10020-10029:10002"
+      - "10030-10039:10003"
+      - "10040-10049:10004"
+      - "10050-10059:10005"
+      - "10060-10069:10006"
+      - "10070-10079:10007"
+      - "10080-10089:10008"
+      - "10090-10099:10009"
+      - "20000-20100:8080"

@@ -6,7 +6,7 @@ const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 let info
 let lastUpdate
 
-const findInfo = async (config, ipfs, root, topic) => {
+const findInfo = async (config, ipfs, root, topic, seq) => {
   if (!lastUpdate || lastUpdate < (Date.now() - 30000)) {
     const [
       id,
@@ -24,6 +24,7 @@ const findInfo = async (config, ipfs, root, topic) => {
     info = {
       name: pkg.name,
       version: pkg.version,
+      seq,
       ipfs: id,
       peers: peers.map(peer => peer.id.toB58String()),
       topic,
@@ -38,9 +39,15 @@ const findInfo = async (config, ipfs, root, topic) => {
 }
 
 module.exports = (config, ipfs, app, root, topic) => {
+  let seq
+
+  app.on('seq', (s) => {
+    seq = s
+  })
+
   return async (request, response, next) => {
     try {
-      const info = await findInfo(config, ipfs, root, topic)
+      const info = await findInfo(config, ipfs, root, topic, seq)
 
       response.statusCode = 200
       response.setHeader('Content-type', 'application/json; charset=utf-8')

@@ -1,6 +1,5 @@
 'use strict'
 
-require('./create-pool.spec')
 require('./error-message.spec')
 require('./find-base-dir.spec')
 require('./get-external-url.spec')

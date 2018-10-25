@@ -1,8 +1,5 @@
 'use strict'
 
-const pkg = require('../../package.json')
-const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
-
 let lastWorker = 0
 
 module.exports = () => {

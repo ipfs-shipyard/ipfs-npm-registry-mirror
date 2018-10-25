@@ -27,6 +27,9 @@ const add = async (config, pkg, ipfs) => {
   return pkg
 }
 
+let start = Date.now()
+let processed = 0
+
 module.exports = async (config, ipfs, emitter) => {
   console.info('🦎 Replicating registry...') // eslint-disable-line no-console
 
@@ -38,6 +41,7 @@ module.exports = async (config, ipfs, emitter) => {
         }
 
         console.info(`🎉 Updated version of ${data.json.name}`) // eslint-disable-line no-console
+        const updateStart = Date.now()
 
         const pkg = replaceTarballUrls(config, data.json)
         const mfsPath = `${config.ipfs.prefix}/${data.json.name}`
@@ -63,8 +67,11 @@ module.exports = async (config, ipfs, emitter) => {
         try {
           await add(config, pkg, ipfs)
           const manifest = await loadManifest(config, ipfs, pkg.name)
-          console.log(`🦕 [${data.seq}] processed ${manifest.name}`) // eslint-disable-line no-console
+          let updateEnd = Date.now()
+          processed++
+          console.log(`🦕 [${data.seq}] processed ${manifest.name} in ${Math.round((updateEnd - updateStart) / 1000)}s, ${(processed / ((Date.now() - start) / 1000)).toFixed(3)} modules/s`) // eslint-disable-line no-console
           emitter.emit('processed', manifest)
+          emitter.emit('seq', data.seq)
         } catch (error) {
           log(error)
           console.error(`💥 [${data.seq}] error processing ${pkg.name} - ${error}`) // eslint-disable-line no-console

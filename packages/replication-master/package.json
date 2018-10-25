@@ -31,6 +31,7 @@
     "yargs": "^12.0.1"
   },
   "devDependencies": {
+    "appmetrics-dash": "achingbrain/appmetrics-dash",
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
     "mocha": "^5.2.0",

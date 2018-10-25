@@ -9,6 +9,7 @@ const tarball = require('./tarball')
 const manifest = require('./manifest')
 const root = require('./root')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
+const findExternalPort = require('./find-external-port')
 
 module.exports = async (options) => {
   options = config(options)
@@ -21,9 +22,11 @@ module.exports = async (options) => {
   }))
 
   options.ipfs.s3.path = `worker-${worker.index}`
+  options.ipfs.port = 10000 + worker.index
+  options.external.ipfsPort = await findExternalPort(options)
 
   const result = await server(options, async (app, ipfs) => {
-    app.get('/', root(options, ipfs, app))
+    app.get('/', root(options, ipfs, app, worker))
 
     // intercept requests for tarballs and manifests
     app.get('/*.tgz', tarball(options, ipfs, app))

@@ -2,6 +2,16 @@
 
 'use strict'
 
+if (process.env.NODE_ENV !== 'production') {
+  const url = '/-/dashboard'
+
+  console.info(`🔍 Enabling profiling at ${url}`) // eslint-disable-line no-console
+
+  require('appmetrics-dash').attach({
+    url
+  })
+}
+
 require('dnscache')({ enable: true })
 
 const pkg = require('../../package')
@@ -102,22 +112,18 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('follow-concurrency', {
       describe: 'How many registry updates to process at once',
-      default: 10
+      default: 100
     })
     .option('follow-seq-file', {
       describe: 'Where to store the seq file of how far through the npm feed we are',
       default: '/tmp/registry-follow.seq'
     })
 
-    .option('clone-max-requests', {
-      describe: 'How many concurrent requests to make to npm when downloading tarballs',
-      default: 50
+    .option('clone-delay', {
+      describe: 'How long to wait after startup before starting to clone npm',
+      default: 0
     })
 
-    .option('request-max-sockets', {
-      describe: 'How many concurrent http requests to make while cloning the repo',
-      default: 50
-    })
     .option('request-retries', {
       describe: 'How many times to retry when downloading manifests and tarballs from the registry',
       default: 5
