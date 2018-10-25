@@ -17,7 +17,7 @@
 
 ```console
 # with docker installed
-$ git clone https://github.com/ipfs-shipyard/ipfs-registry-mirror.git
+$ git clone https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror.git
 $ cd ipfs-registry-mirror
 $ ./deploy.sh
 ```
