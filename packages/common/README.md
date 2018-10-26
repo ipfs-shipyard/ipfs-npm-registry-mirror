@@ -9,7 +9,7 @@
 [![Code Coverage](https://codecov.io/gh/ipfs-shipyard/ipfs-registry-mirror/branch/master/graph/badge.svg)](https://codecov.io/gh/ipfs-shipyard/ipfs-registry-mirror)
 [![Dependency Status](https://david-dm.org/ipfs-shipyard/ipfs-npm-registry-mirror.svg?style=flat-square)](https://david-dm.org/ipfs-shipyard/ipfs-npm-registry-mirror)
 
-> Holds common files for the ipfs-registry-mirror project
+> Holds common files for the ipfs-npm-registry-mirror project
 
 ## Lead Maintainer
 
