@@ -7,6 +7,7 @@ module.exports = (overrides = {}) => {
   return {
     registry: option(process.env.REGISTRY, overrides.registry),
     registryUpdateInterval: option(process.env.REGISTRY_UPDATE_INTERVAL, overrides.registryUpdateInterval),
+    registryReadTimeout: option(Number(process.env.REGISTRY_READ_TIMEOUT), overrides.registryReadTimeout),
 
     http: {
       protocol: option(process.env.HTTP_PROTOCOL, overrides.httpProtocol),

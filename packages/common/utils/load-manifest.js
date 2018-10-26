@@ -6,80 +6,133 @@ const saveManifest = require('./save-manifest')
 const replaceTarballUrls = require('./replace-tarball-urls')
 const timeout = require('./timeout-promise')
 
-// the timeout after which we will fetch the manifest from npm instead
-const READ_TIMEOUT = 10000
+const hasBackupRegistry = (options) => {
+  return options.npm && options.npm.registry
+}
 
-const loadManifest = async (config, ipfs, packageName, localOnly) => {
-  let mfsVersion = {}
-  let npmVersion = {}
-
-  const mfsPath = `${config.ipfs.prefix}/${packageName}`
-  const npmUrl = `${config.registry}/${packageName}`
+const loadFromMfs = async (packageName, ipfs, options) => {
+  let json = {}
+  const mfsPath = `${options.ipfs.prefix}/${packageName}`
 
   try {
     log(`Reading from mfs ${mfsPath}`)
+    const start = Date.now()
 
-    if (localOnly) {
-      mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
-    } else {
-      mfsVersion = JSON.parse(await timeout(ipfs.files.read(mfsPath), READ_TIMEOUT))
-    }
+    json = await ipfs.files.read(mfsPath)
 
-    log(`Read from mfs ${mfsPath}`)
+    log(`Read from mfs ${mfsPath} in ${Date.now() - start}ms`)
+
+    json = JSON.parse(json)
   } catch (error) {
-    if (error.code === 'ETIMEOUT') {
-      log(`Timed out reading ${mfsPath}`)
-    } else if (error.message.includes('file does not exist')) {
+    if (error.message.includes('file does not exist')) {
       log(`${mfsPath} not in MFS`)
-    } else {
-      log(`Could not read ${mfsPath}`, error)
     }
 
-    if (localOnly) {
-      throw error
-    }
+    log(`Could not read ${mfsPath}`, error)
   }
+
+  return json
+}
+
+const requestFromRegistry = async (packageName, registry, ipfs, options) => {
+  let json = {}
+  const uri = `${registry}/${packageName}`
+
+  try {
+    log(`Fetching ${uri}`)
+    const start = Date.now()
+
+    json = await request(Object.assign({}, options.request, {
+      uri,
+      json: true
+    }))
+
+    log(`Fetched ${uri} in ${Date.now() - start}ms`)
+  } catch (error) {
+    log(`Could not download ${uri}`, error)
+  }
+
+  return json
+}
+
+const loadFromMainRegistry = (packageName, ipfs, options) => {
+  if (options.registry) {
+    return requestFromRegistry(packageName, options.registry, ipfs, options)
+  }
+
+  return {}
+}
+
+const loadFromBackupRegistry = (packageName, ipfs, options) => {
+  if (options.npm && options.npm.registry) {
+    return requestFromRegistry(packageName, options.npm.registry, ipfs, options)
+  }
+
+  return {}
+}
+
+const loadFromRegistry = async (packageName, ipfs, options) => {
+  if (hasBackupRegistry(options)) {
+    let result
+
+    try {
+      result = await timeout(loadFromMainRegistry(packageName, ipfs, options), options.registryReadTimeout)
+    } catch (error) {
+      if (error.code === 'ETIMEOUT') {
+        log(`Fetching ${packageName} timed out after ${options.registryReadTimeout}ms`)
+      }
+    }
+
+    if (result && result._rev) {
+      return result
+    }
+
+    try {
+      return await loadFromBackupRegistry(packageName, ipfs, options)
+    } catch (error) {
+      log(`Could not download ${uri}`, error)
+    }
+
+    return {}
+  } else {
+    return loadFromMainRegistry(packageName, ipfs, options)
+  }
+}
+
+const loadManifest = async (options, ipfs, packageName) => {
+  let mfsVersion = await loadFromMfs(packageName, ipfs, options)
+  let registryVersion = {}
 
   const modified = new Date((mfsVersion.time && mfsVersion.time.modified) || 0)
-  const willDownload = (Date.now() - config.registryUpdateInterval) > modified.getTime()
+  const willDownload = (Date.now() - options.registryUpdateInterval) > modified.getTime()
 
-  if (willDownload && !localOnly) {
-    try {
-      log(`Fetching ${npmUrl}`)
-      const start = Date.now()
-      npmVersion = await request(Object.assign({}, config.request, {
-        uri: npmUrl,
-        json: true
-      }))
-      log(`Fetched ${npmUrl} in ${Date.now() - start}ms`)
-    } catch (error) {
-      log(`Could not download ${npmUrl}`, error)
-    }
+  if (willDownload) {
+    registryVersion = await loadFromRegistry(packageName, ipfs, options)
   }
 
-  if (!mfsVersion._rev && !npmVersion._rev) {
-    throw new Error(`Not found, would have tried npm: ${willDownload}, local only: ${localOnly}`)
+  if (!mfsVersion._rev && !registryVersion._rev) {
+    throw new Error(`${packageName} not found, tried upstream registry: ${willDownload}`)
   }
 
-  if (mfsVersion._rev && (!npmVersion._rev || npmVersion._rev === mfsVersion._rev)) {
+  if (mfsVersion._rev && (!registryVersion._rev || registryVersion._rev === mfsVersion._rev)) {
     // we have a cached version and either fetching from npm failed or
     // our cached version matches the npm version
     return mfsVersion
   }
 
-  console.info(`🆕 New version of ${packageName} detected`, mfsVersion._rev, 'vs', npmVersion._rev)
+  console.info(`🆕 New version of ${packageName} detected`, mfsVersion._rev, 'vs', registryVersion._rev)
 
-  npmVersion = replaceTarballUrls(config, npmVersion)
+  registryVersion = replaceTarballUrls(options, registryVersion)
 
   // save our existing versions so we don't re-download tarballs we already have
   Object.keys(mfsVersion.versions || {}).forEach(versionNumber => {
-    npmVersion.versions[versionNumber] = mfsVersion.versions[versionNumber]
+    registryVersion.versions[versionNumber] = mfsVersion.versions[versionNumber]
   })
 
   // store it for next time
-  await saveManifest(npmVersion, ipfs, config)
+  await saveManifest(registryVersion, ipfs, options)
 
-  return npmVersion
+  return registryVersion
 }
 
 module.exports = loadManifest

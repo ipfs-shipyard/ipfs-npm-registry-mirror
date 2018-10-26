@@ -31,6 +31,7 @@ describe('load-manifest', () => {
   beforeEach(async () => {
     config = {
       registryUpdateInterval: 0,
+      registryReadTimeout: 10000,
       registry: `http://foo`,
       ipfs: {
         prefix: `/registry-prefix-${hat()}`
@@ -158,7 +159,38 @@ describe('load-manifest', () => {
       await loadManifest(config, ipfs, nonExistentPackage.name)
       throw new Error('Expected loadManifest to throw')
     } catch (error) {
-      expect(error.message).to.include('Not found')
+      expect(error.message).to.include('not found')
     }
+  })
+
+  it('should download from a backup registry', async () => {
+    const options = Object.assign({}, config, {
+      npm: {
+        registry: 'https://regregreg.npm.com'
+      }
+    })
+
+    ipfs.files.read.withArgs(`${options.ipfs.prefix}/${existentPackage.name}`)
+      .rejects(new Error('file does not exist'))
+
+    request
+      .withArgs({
+        uri: `${options.registry}/${existentPackage.name}`,
+        json: true
+      })
+      .rejects(new Error('404'))
+
+    request
+      .withArgs({
+        uri: `${options.npm.registry}/${existentPackage.name}`,
+        json: true
+      })
+      .resolves(existentPackage)
+
+    const result = await loadManifest(options, ipfs, existentPackage.name)
+
+    expect(result).to.deep.equal(existentPackage)
+    expect(saveManifest.called).to.be.true()
+    expect(request.called).to.be.true()
   })
 })
