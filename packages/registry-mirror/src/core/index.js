@@ -40,6 +40,7 @@ module.exports = async (options) => {
     app.post('/*', registry)
     app.patch('/*', registry)
     app.delete('/*', registry)
+    app.get('/-/whoami', registry)
 
     await replicationWorker(options, ipfs, app)
   })
