@@ -6,7 +6,7 @@
   "version": "independent",
   "command": {
     "bootstrap": {
-      "hoist": true
+      "hoist": false
     },
     "run": {
       "stream": true
