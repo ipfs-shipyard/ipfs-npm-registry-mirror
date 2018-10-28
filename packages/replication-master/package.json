@@ -32,10 +32,12 @@
   },
   "devDependencies": {
     "aegir": "^17.0.0",
-    "appmetrics-dash": "achingbrain/appmetrics-dash",
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
     "mock-require": "^3.0.2",
     "sinon": "^6.1.5"
+  },
+  "optionalDependencies": {
+    "appmetrics-dash": "achingbrain/appmetrics-dash"
   }
 }

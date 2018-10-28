@@ -7,9 +7,13 @@ if (process.env.NODE_ENV !== 'production') {
 
   console.info(`🔍 Enabling profiling at ${url}`) // eslint-disable-line no-console
 
-  require('appmetrics-dash').attach({
-    url
-  })
+  try {
+    require('appmetrics-dash').attach({
+      url
+    })
+  } catch (error) {
+    console.error(`💥 Enabling profiling failed`, error) // eslint-disable-line no-console
+  }
 }
 
 require('dnscache')({ enable: true })
