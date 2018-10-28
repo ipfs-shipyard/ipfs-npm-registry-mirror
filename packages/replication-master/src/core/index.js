@@ -19,7 +19,8 @@ module.exports = async (options) => {
   })
 
   // give workers a chance to connect
-  console.info(`⌚ Waiting for ${options.clone.delay}ms before starting to clone npm`)
+  console.info(`⌚ Waiting for ${options.clone.delay}ms before starting to clone npm`) // eslint-disable-line no-console
+
   await delay(options.clone.delay || 0)
 
   const feed = await clone(options, result.ipfs, result.app)
