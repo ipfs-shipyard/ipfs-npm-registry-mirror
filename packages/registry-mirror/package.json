@@ -23,6 +23,7 @@
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
     "debug": "^4.0.1",
+    "dnscache": "^1.0.1",
     "express-http-proxy": "^1.4.0",
     "hat": "~0.0.3",
     "ipfs-registry-mirror-common": "^1.0.4",
