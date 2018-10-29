@@ -51,7 +51,6 @@ services:
       - STORE_S3_PATH=replication-master
       - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
       - CLONE_DELAY=30000
-      - UV_THREADPOOL_SIZE=128
     ports:
       - "8080:8080"
       - "4001:4001"
@@ -80,7 +79,6 @@ services:
       - STORE_S3_ACCESS_KEY_ID=${STORE_S3_ACCESS_KEY_ID}
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
       - PUBSUB_MASTER=http://replicate:8080
-      - UV_THREADPOOL_SIZE=128
     links:
       - replicate
     ports:

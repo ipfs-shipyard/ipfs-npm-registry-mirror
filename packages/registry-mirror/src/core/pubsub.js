@@ -52,7 +52,7 @@ const updateRoot = async (config, ipfs, master) => {
     .pop()
 
   if (node) {
-    console.info('🐺 Already have base dir') // eslint-disable-line no-console
+    return console.info('🐺 Already have base dir') // eslint-disable-line no-console
   }
 
   console.info(`🐺 Creating base dir from ${master.root}`) // eslint-disable-line no-console
