@@ -43,7 +43,8 @@ const validate = (version, versionNumber, packageName) => {
 }
 
 const downloadFile = async (url, shasum, ipfs, options) => {
-  log(`Downloading ${url}`)
+  console.info(`⬇️  Downloading ${url}`) // eslint-disable-line no-console
+  const start = Date.now()
 
   const hash = crypto.createHash('sha1')
   hash.setEncoding('hex')
@@ -54,6 +55,10 @@ const downloadFile = async (url, shasum, ipfs, options) => {
   }))
     .then(stream => {
       stream.pipe(hash)
+
+      stream.once('end', () => {
+        console.info(`✅ Downloaded ${url} in ${Date.now() - start}ms`) // eslint-disable-line no-console
+      })
 
       return ipfs.files.add(stream, {
         wrapWithDirectory: false
@@ -69,7 +74,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
         throw new Error(`File downloaded from ${url} had invalid shasum ${result} - expected ${shasum}`)
       }
 
-      log(`File downloaded from ${url} had shasum ${result} - matched ${shasum}`)
+      console.info(`🌍 Added ${url} to IPFS in ${Date.now() - start}ms`) // eslint-disable-line no-console
 
       const file = files.pop()
 

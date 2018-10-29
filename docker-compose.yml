@@ -51,9 +51,8 @@ services:
       - STORE_S3_PATH=replication-master
       - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
       - CLONE_DELAY=30000
-      - FOLLOW_CONCURRENCY=1
+      - FOLLOW_CONCURRENCY=5
       - REQUEST_MAX_SOCKETS=20
-      - DEBUG=ipfs:*
     ports:
       - "8080:8080"
       - "4001:4001"
