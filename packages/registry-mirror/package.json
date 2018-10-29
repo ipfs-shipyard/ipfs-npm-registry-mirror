@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ipfs-shipyard/ipfs-registry-mirror.git"
+    "url": "git+https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ipfs-shipyard/ipfs-registry-mirror/issues"
+    "url": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror/issues"
   },
-  "homepage": "https://github.com/ipfs-shipyard/ipfs-registry-mirror#readme",
+  "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
     "debug": "^4.0.1",
     "dnscache": "^1.0.1",
