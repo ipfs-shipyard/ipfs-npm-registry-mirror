@@ -140,5 +140,9 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'How long in ms we should wait when requesting files',
       default: 30000
     })
+    .option('request-keep-alive', {
+      describe: 'Whether to re-use connections',
+      default: true
+    })
 }, require('../core'))
   .argv
