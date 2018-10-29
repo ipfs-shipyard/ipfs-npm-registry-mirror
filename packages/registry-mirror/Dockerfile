@@ -7,9 +7,13 @@ RUN export NODE_ENV=production
 RUN npm set unsafe-perm true
 
 COPY ./package.json /app/package.json
+COPY ./package-lock.json /app/package-lock.json
 COPY ./lerna.json /app/lerna.json
 COPY ./packages/common/package.json /app/packages/common/package.json
+COPY ./packages/common/package-lock.json /app/packages/common/package-lock.json
 COPY ./packages/registry-mirror/package.json /app/packages/registry-mirror/package.json
+COPY ./packages/registry-mirror/package-lock.json /app/packages/registry-mirror/package-lock.json
+
 
 WORKDIR /app
 
