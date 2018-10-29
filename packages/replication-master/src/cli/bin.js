@@ -116,7 +116,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('follow-concurrency', {
       describe: 'How many registry updates to process at once',
-      default: 20
+      default: 100
     })
     .option('follow-seq-file', {
       describe: 'Where to store the seq file of how far through the npm feed we are',
