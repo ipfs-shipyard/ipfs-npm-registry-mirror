@@ -38,5 +38,8 @@
     "dirty-chai": "^2.0.1",
     "mock-require": "^3.0.2",
     "sinon": "^6.1.5"
+  },
+  "optionalDependencies": {
+    "@achingbrain/appmetrics-dash": "4.0.1"
   }
 }

@@ -38,6 +38,6 @@
     "sinon": "^6.1.5"
   },
   "optionalDependencies": {
-    "appmetrics-dash": "achingbrain/appmetrics-dash"
+    "@achingbrain/appmetrics-dash": "4.0.1"
   }
 }

@@ -2,6 +2,20 @@
 
 'use strict'
 
+if (process.env.NODE_ENV !== 'production') {
+  const url = '/-/dashboard'
+
+  console.info(`🔍 Enabling profiling at ${url}`) // eslint-disable-line no-console
+
+  try {
+    require('@achingbrain/appmetrics-dash').attach({
+      url
+    })
+  } catch (error) {
+    console.error(`💥 Enabling profiling failed`, error) // eslint-disable-line no-console
+  }
+}
+
 require('dnscache')({ enable: true })
 
 const pkg = require('../../package')

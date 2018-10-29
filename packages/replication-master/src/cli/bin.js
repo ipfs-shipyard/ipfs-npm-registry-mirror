@@ -8,7 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
   console.info(`🔍 Enabling profiling at ${url}`) // eslint-disable-line no-console
 
   try {
-    require('appmetrics-dash').attach({
+    require('@achingbrain/appmetrics-dash').attach({
       url
     })
   } catch (error) {
