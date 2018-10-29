@@ -36,6 +36,8 @@
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
     "hat": "~0.0.3",
+    "ipfs-unixfs": "^0.1.16",
+    "ipld-dag-pb": "^0.14.11",
     "mock-require": "^3.0.2",
     "sinon": "^6.1.5"
   },

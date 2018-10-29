@@ -55,7 +55,7 @@ module.exports = async (emitter, ipfs, options) => {
           emitter.emit('seq', data.seq)
         } catch (error) {
           log(error)
-          console.error(`💥 [${data.seq}] error processing ${pkg.name} - ${error}`) // eslint-disable-line no-console
+          console.error(`💥 [${data.seq}] error processing ${manifest.name} - ${error}`) // eslint-disable-line no-console
         }
 
         callback()

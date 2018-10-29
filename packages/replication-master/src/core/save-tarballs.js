@@ -4,11 +4,6 @@ const log = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const CID = require('cids')
 const crypto = require('crypto')
-const loadManifest = require('ipfs-registry-mirror-common/utils/load-manifest')
-const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
-const {
-  PassThrough
-} = require('stream')
 
 const saveTarball = async (manifest, versionNumber, ipfs, options) => {
   const version = manifest.versions[versionNumber]
@@ -26,7 +21,7 @@ const saveTarball = async (manifest, versionNumber, ipfs, options) => {
 
   version.dist.cid = cid
 
-  console.info(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
+  console.info(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`) // eslint-disable-line no-console
 }
 
 const validate = (version, versionNumber, packageName) => {
@@ -88,7 +83,7 @@ const saveTarballs = async (pkg, ipfs, options) => {
       .map(versionNumber => {
         return saveTarball(pkg, versionNumber, ipfs, options)
           .catch(error => {
-            console.error(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, error)
+            console.error(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, error) // eslint-disable-line no-console
           })
       })
   )
