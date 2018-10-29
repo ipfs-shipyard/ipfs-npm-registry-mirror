@@ -23,8 +23,8 @@
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
     "debug": "^4.0.1",
-    "dnscache": "^1.0.1",
-    "follow-registry": "achingbrain/follow-registry",
+    "cids": "~0.5.5",
+    "@achingbrain/follow-registry": "3.1.0",
     "hat": "~0.0.3",
     "ipfs-registry-mirror-common": "^1.0.4",
     "promise-delay": "^2.1.0",

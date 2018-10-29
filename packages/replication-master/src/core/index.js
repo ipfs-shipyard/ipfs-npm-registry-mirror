@@ -23,7 +23,7 @@ module.exports = async (options) => {
 
   await delay(options.clone.delay || 0)
 
-  const feed = await clone(options, result.ipfs, result.app)
+  const feed = await clone(result.app, result.ipfs, options)
 
   const stop = result.stop
 

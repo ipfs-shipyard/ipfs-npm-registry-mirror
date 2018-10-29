@@ -16,8 +16,6 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
-require('dnscache')({ enable: true })
-
 const pkg = require('../../package')
 const path = require('path')
 
