@@ -124,5 +124,9 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to re-use connections',
       default: true
     })
+    .option('request-max-sockets', {
+      describe: 'How many concurrent requests to have in flight',
+      default: 100
+    })
 }, require('../core'))
   .argv
