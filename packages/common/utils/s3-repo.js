@@ -5,7 +5,9 @@ const S3Store = require('datastore-s3')
 const IPFSRepo = require('ipfs-repo')
 
 const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMissing }) => {
-  path = path || process.env.HOSTNAME
+  if (process.env.NODE_ENV === 'development') {
+    path = `${path}-test`
+  }
 
   const storeconfig = {
     s3: new S3({
