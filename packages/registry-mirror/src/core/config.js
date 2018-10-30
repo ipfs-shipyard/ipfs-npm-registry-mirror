@@ -47,6 +47,10 @@ module.exports = (overrides = {}) => {
       master: option(process.env.PUBSUB_MASTER, overrides.pubsubMaster)
     },
 
+    clone: {
+      pin: option(Number(process.env.CLONE_PIN), overrides.clonePin)
+    },
+
     request: {
       retries: option(process.env.REQUEST_RETRIES, overrides.requestRetries),
       retryDelay: option(process.env.REQUEST_RETRY_DELAY, overrides.requestRetryDelay),

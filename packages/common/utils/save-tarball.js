@@ -92,7 +92,8 @@ const downloadFile = async (config, ipfs, url, shasum, outputStream) => {
       stream.pipe(hash)
 
       return ipfs.files.add(stream, {
-        wrapWithDirectory: false
+        wrapWithDirectory: false,
+        pin: config.clone.pin
       })
     })
     .then(files => {

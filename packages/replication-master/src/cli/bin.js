@@ -127,6 +127,10 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'How long to wait after startup before starting to clone npm',
       default: 0
     })
+    .option('clone-pin', {
+      describe: 'Whether to pin cloned modules',
+      default: false
+    })
 
     .option('request-retries', {
       describe: 'How many times to retry when downloading manifests and tarballs from the registry',
