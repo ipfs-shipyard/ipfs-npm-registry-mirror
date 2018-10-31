@@ -143,22 +143,29 @@ describe('mirror', function () {
 
   it('should download a missing manifest', async () => {
     const moduleName = `module-${hat()}`
-    const data = JSON.stringify({
-      _rev: '12345',
+    const data = {
       name: moduleName,
-      versions: {}
-    })
+      versions: {
+        '0.0.1': {
+          dist: {
+            tarball: `https://some.registry.com/${moduleName}-0.0.1.tgz`
+          }
+        }
+      }
+    }
 
     upstreamModules[`/${moduleName}`] = (request, response) => {
       response.statusCode = 200
-      response.end(data)
+      response.end(JSON.stringify(data))
     }
 
-    const result = await request({
+    const result = JSON.parse(await request({
       uri: `${mirrorUrl}/${moduleName}`
-    })
+    }))
 
-    expect(result.trim()).to.equal(data.trim())
+    expect(result.name).to.equal(moduleName)
+    expect(result.versions.length).to.equal(data.versions.length)
+    expect(result.versions['0.0.1'].dist.source).to.equal(data.versions['0.0.1'].dist.tarball)
   })
 
   it('should download a missing tarball from an existing module', async () => {
@@ -196,22 +203,29 @@ describe('mirror', function () {
 
   it('should download a manifest from a missing scoped module', async () => {
     const moduleName = `@my-scope/module-${hat()}`
-    const data = JSON.stringify({
-      _rev: '12345',
+    const data = {
       name: moduleName,
-      versions: {}
-    })
+      versions: {
+        '0.0.1': {
+          dist: {
+            tarball: `https://some.registry.com/${moduleName}-0.0.1.tgz`
+          }
+        }
+      }
+    }
 
     upstreamModules[`/${moduleName.replace('/', '%2f')}`] = (request, response) => {
       response.statusCode = 200
-      response.end(data)
+      response.end(JSON.stringify(data))
     }
 
-    const result = await request({
+    const result = JSON.parse(await request({
       uri: `${mirrorUrl}/${moduleName.replace('/', '%2f')}`
-    })
+    }))
 
-    expect(result.trim()).to.equal(data.trim())
+    expect(result.name).to.equal(moduleName)
+    expect(result.versions.length).to.equal(data.versions.length)
+    expect(result.versions['0.0.1'].dist.source).to.equal(data.versions['0.0.1'].dist.tarball)
   })
 
   it('should check with the upstream registry for updated versions', async () => {

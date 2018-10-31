@@ -11,7 +11,14 @@ const hat = require('hat')
 const pkg = (name) => {
   return {
     name: name,
-    _rev: hat()
+    versions: {
+      '0.0.1': {
+        name: name,
+        dist: {
+          tarball: `https://foo.registry.com/${name}.tgz`
+        }
+      }
+    }
   }
 }
 

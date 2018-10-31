@@ -99,6 +99,14 @@ const loadFromRegistry = async (packageName, ipfs, options) => {
   }
 }
 
+const findNewVersions = (cached, upstream) => {
+  const cachedVersions = cached.versions || {}
+  const upstreamVersions = upstream.versions || {}
+
+  return Object.keys(upstreamVersions)
+    .filter(version => !cachedVersions[version])
+}
+
 const loadManifest = async (options, ipfs, packageName) => {
   let mfsVersion = await loadFromMfs(packageName, ipfs, options)
   let registryVersion = {}
@@ -110,17 +118,19 @@ const loadManifest = async (options, ipfs, packageName) => {
     registryVersion = await loadFromRegistry(packageName, ipfs, options)
   }
 
-  if (!mfsVersion._rev && !registryVersion._rev) {
+  if (!mfsVersion.versions && !registryVersion.versions) {
     throw new Error(`${packageName} not found, tried upstream registry: ${willDownload}`)
   }
 
-  if (mfsVersion._rev && (!registryVersion._rev || registryVersion._rev === mfsVersion._rev)) {
+  const newVerisons = findNewVersions(mfsVersion, registryVersion)
+
+  if (!newVerisons.length) {
     // we have a cached version and either fetching from npm failed or
     // our cached version matches the npm version
     return mfsVersion
   }
 
-  console.info(`🆕 New version of ${packageName} detected`, mfsVersion._rev, 'vs', registryVersion._rev)
+  console.info(`🆕 New version${newVerisons.length > 1 ? 's': ''} of ${packageName} detected - ${newVerisons.join(', ')}`)
 
   registryVersion = replaceTarballUrls(options, registryVersion)
 

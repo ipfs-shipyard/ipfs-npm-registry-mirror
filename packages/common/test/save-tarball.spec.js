@@ -23,6 +23,9 @@ describe('save-tarball', () => {
     config = {
       request: {
 
+      },
+      clone: {
+
       }
     }
 
