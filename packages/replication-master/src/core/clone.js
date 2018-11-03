@@ -8,9 +8,18 @@ const saveTarballs = require('./save-tarballs')
 
 let start = Date.now()
 let processed = 0
+const HALF_AN_HOUR = 1800000
 
 module.exports = async (emitter, ipfs, options) => {
   console.info('🦎 Replicating registry...') // eslint-disable-line no-console
+
+  let lastUpdate = 0
+
+  setInterval(() => {
+    if (Date.now() - lastUpdate > HALF_AN_HOUR) {
+      throw new Error('💥 Did not receive an update for 30 minutes, restarting')
+    }
+  }, HALF_AN_HOUR)
 
   return new Promise((resolve) => {
     follow(Object.assign({}, options.follow, {
@@ -18,6 +27,8 @@ module.exports = async (emitter, ipfs, options) => {
         if (!data.json || !data.json.name) {
           return callback() // Bail, something is wrong with this change
         }
+
+        lastUpdate = Date.now()
 
         console.info(`🎉 Updated version of ${data.json.name}`) // eslint-disable-line no-console
         const updateStart = Date.now()
@@ -49,7 +60,7 @@ module.exports = async (emitter, ipfs, options) => {
 
           let updateEnd = Date.now()
           processed++
-          console.log(`🦕 [${data.seq}] processed ${manifest.name} in ${Math.round((updateEnd - updateStart) / 1000)}s, ${(processed / ((Date.now() - start) / 1000)).toFixed(3)} modules/s`) // eslint-disable-line no-console
+          console.info(`🦕 [${data.seq}] processed ${manifest.name} in ${Math.round((updateEnd - updateStart) / 1000)}s, ${(processed / ((Date.now() - start) / 1000)).toFixed(3)} modules/s`) // eslint-disable-line no-console
 
           emitter.emit('processed', manifest)
           emitter.emit('seq', data.seq)
