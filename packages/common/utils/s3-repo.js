@@ -9,6 +9,8 @@ const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMi
     path = `${path}-test`
   }
 
+  console.info(`☁️  Using s3 storage ${region}:${bucket}/${path}`) // eslint-disable-line no-console
+
   const storeconfig = {
     s3: new S3({
       params: {

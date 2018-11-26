@@ -38,7 +38,7 @@ services:
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=replication.registry.js.ipfs.io
       - LETSENCRYPT_EMAIL=alex.potsides@protocol.ai
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV}
       - EXTERNAL_PROTOCOL=https
       - EXTERNAL_HOST=registry.js.ipfs.io
       - EXTERNAL_PORT=443
@@ -51,7 +51,7 @@ services:
       - STORE_S3_PATH=replication-master
       - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
       - CLONE_DELAY=30000
-      - FOLLOW_CONCURRENCY=10
+      - FOLLOW_CONCURRENCY=200
       - REQUEST_MAX_SOCKETS=20
     ports:
       - "8080:8080"
@@ -70,7 +70,7 @@ services:
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=registry.js.ipfs.io
       - LETSENCRYPT_EMAIL=alex.potsides@protocol.ai
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV}
       - EXTERNAL_PROTOCOL=https
       - EXTERNAL_HOST=registry.js.ipfs.io
       - EXTERNAL_PORT=443

@@ -11,7 +11,7 @@ let processed = 0
 const HALF_AN_HOUR = 1800000
 
 module.exports = async (emitter, ipfs, options) => {
-  console.info('🦎 Replicating registry...') // eslint-disable-line no-console
+  console.info(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`) // eslint-disable-line no-console
 
   let lastUpdate = 0
 

@@ -81,8 +81,6 @@ const getAnIPFS = promisify((config, callback) => {
   }
 
   if (config.ipfs.store === 's3') {
-    console.info(`☁️  Using s3 storage`) // eslint-disable-line no-console
-
     config.ipfs.repo = s3Repo({
       region: config.ipfs.s3.region,
       path: config.ipfs.s3.path,
