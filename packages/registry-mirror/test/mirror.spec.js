@@ -103,8 +103,10 @@ describe('mirror', function () {
 
     const node = await createDagNode(fsNode.marshal())
 
-    await mirror.app.locals.ipfs.dag.put(node, {
-      cid: node._cid
+    const cid = await mirror.app.locals.ipfs.dag.put(node, {
+      version: 0,
+      format: 'dag-pb',
+      hashAlg: 'sha2-256'
     })
 
     const manifest = JSON.stringify({
@@ -113,7 +115,7 @@ describe('mirror', function () {
       versions: {
         '1.0.0': {
           dist: {
-            cid: node._cid.toBaseEncodedString()
+            cid: cid.toBaseEncodedString()
           }
         }
       }
