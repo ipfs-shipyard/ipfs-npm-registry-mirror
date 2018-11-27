@@ -40,9 +40,7 @@ describe('save-tarball', () => {
     saveTarball = mock.reRequire('../utils/save-tarball')
 
     ipfs = {
-      files: {
-        add: sinon.stub()
-      }
+      add: sinon.stub()
     }
   })
 
@@ -92,7 +90,7 @@ describe('save-tarball', () => {
     loadManifest.withArgs(config, ipfs, pkg.name)
       .resolves(pkg)
 
-    ipfs.files.add.callsFake(stream => {
+    ipfs.add.callsFake(stream => {
       return new Promise((resolve) => {
         stream.on('end', () => {
           resolve([{

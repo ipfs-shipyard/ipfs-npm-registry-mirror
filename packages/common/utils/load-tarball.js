@@ -33,7 +33,7 @@ const readOrDownloadTarball = async (config, ipfs, path) => {
     throw new Error(`Could not turn ${version.dist.cid} into a CID - ${error.stack}`)
   }
 
-  return ipfs.files.catReadableStream(`/ipfs/${v0Cid}`)
+  return ipfs.catReadableStream(`/ipfs/${v0Cid}`)
 }
 
 const extractPackageDetails = (path) => {

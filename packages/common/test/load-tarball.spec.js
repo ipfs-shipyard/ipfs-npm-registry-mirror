@@ -41,9 +41,7 @@ describe('load-tarball', () => {
     loadTarball = mock.reRequire('../utils/load-tarball')
 
     ipfs = {
-      files: {
-        catReadableStream: sinon.stub()
-      }
+      catReadableStream: sinon.stub()
     }
   })
 
@@ -69,7 +67,7 @@ describe('load-tarball', () => {
     loadManifest.withArgs(config, ipfs, packageName)
       .returns(pkg)
 
-    ipfs.files.catReadableStream
+    ipfs.catReadableStream
       .withArgs(`/ipfs/${pkg.versions[packageVersion].dist.cid}`)
       .resolves('ok')
 

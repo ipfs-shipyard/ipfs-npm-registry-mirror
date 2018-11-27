@@ -60,7 +60,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
         console.info(`✅ Downloaded ${url} in ${Date.now() - start}ms`) // eslint-disable-line no-console
       })
 
-      return ipfs.files.add(stream, {
+      return ipfs.add(stream, {
         wrapWithDirectory: false,
         pin: options.clone.pin
       })
