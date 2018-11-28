@@ -35,10 +35,10 @@ describe('find-base-dir', () => {
   it('should find an existing base dir', async () => {
     const dirHash = 'QmSomethingSomething'
     ipfs.files.stat = sinon.stub().withArgs(containingDirectory)
-      .returns([{
+      .returns({
         name: dirName,
         hash: dirHash
-      }])
+      })
 
     const result = await findBaseDir(config, ipfs)
 

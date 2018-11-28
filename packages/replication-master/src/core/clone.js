@@ -42,7 +42,7 @@ module.exports = async (emitter, ipfs, options) => {
           mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
           log(`Read cached manifest from ${mfsPath}`)
         } catch (error) {
-          if (error.message.includes('file does not exist')) {
+          if (error.message.includes('does not exist')) {
             log(`${mfsPath} not in MFS`)
           } else {
             log(`Could not read ${mfsPath}`, error)
