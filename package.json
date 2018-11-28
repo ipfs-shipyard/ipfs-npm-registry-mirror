@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Install your dependencies from IPFS",
   "scripts": {
-    "postinstall": "lerna bootstrap --ci --loglevel debug",
+    "postinstall": "lerna bootstrap --ci",
     "reset": "lerna run --parallel clean && rm -rf packages/*/node_modules packages/*/package-lock.json && rm -rf node_modules package-lock.json && npm i --ignore-scripts && lerna bootstrap",
     "test": "lerna run --parallel test",
     "coverage": "lerna run --parallel coverage",
