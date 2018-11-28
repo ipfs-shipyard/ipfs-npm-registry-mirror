@@ -103,6 +103,9 @@ const getAnIPFS = promisify((config, callback) => {
       pubsub: true,
       sharding: true
     },
+    preload: {
+      enabled: false
+    },
     config: {
       Addresses: {
         Swarm: [
