@@ -1,24 +1,20 @@
 'use strict'
 
 const findBaseDir = async (config, ipfs) => {
-  const parts = config.ipfs.prefix.split('/')
-  const name = parts.pop()
-  const rest = `/${parts.join('/')}`
+  try {
+    const stats = await ipfs.files.stat(config.ipfs.prefix)
 
-  const node = (await ipfs.files.ls(rest, {
-    long: true
-  }))
-    .filter(item => item.name === name)
-    .pop()
+    return stats.hash
+  } catch (error) {
+    if (error.message.includes('does not exist')) {
+      console.info('🐺 Creating base dir') // eslint-disable-line no-console
+      await ipfs.files.mkdir(config.ipfs.prefix, {
+        parents: true
+      })
+    }
 
-  if (node) {
-    return node.hash
+    return findBaseDir(config, ipfs)
   }
-
-  console.info('🐺 Creating base dir') // eslint-disable-line no-console
-  await ipfs.files.mkdir(config.ipfs.prefix)
-
-  return findBaseDir(config, ipfs)
 }
 
 module.exports = findBaseDir

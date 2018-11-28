@@ -34,12 +34,11 @@ describe('find-base-dir', () => {
 
   it('should find an existing base dir', async () => {
     const dirHash = 'QmSomethingSomething'
-    ipfs.files.ls = sinon.stub().withArgs(containingDirectory, {
-      long: true
-    }).returns([{
-      name: dirName,
-      hash: dirHash
-    }])
+    ipfs.files.stat = sinon.stub().withArgs(containingDirectory)
+      .returns([{
+        name: dirName,
+        hash: dirHash
+      }])
 
     const result = await findBaseDir(config, ipfs)
 
@@ -49,12 +48,12 @@ describe('find-base-dir', () => {
 
   it('should create the base dir if it does not exist', async () => {
     const dirHash = 'QmSomethingSomething'
-    ipfs.files.ls = sinon.stub()
-      .onFirstCall().returns([])
-      .onSecondCall().returns([{
+    ipfs.files.stat = sinon.stub()
+      .onFirstCall().throws(new Error('basedir does not exist'))
+      .onSecondCall().returns({
         name: dirName,
         hash: dirHash
-      }])
+      })
 
     const result = await findBaseDir(config, ipfs)
 

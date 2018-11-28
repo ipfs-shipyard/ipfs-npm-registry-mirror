@@ -2,6 +2,7 @@
 
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
+const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 
 const findMaster = async (config) => {
   return request(Object.assign({}, config.request, {
@@ -41,21 +42,7 @@ const subscribeToTopic = async (config, ipfs, master) => {
 }
 
 const updateRoot = async (config, ipfs, master) => {
-  const parts = config.ipfs.prefix.split('/')
-  const name = parts.pop()
-  const rest = `/${parts.join('/')}`
-
-  const node = (await ipfs.files.ls(rest, {
-    long: true
-  }))
-    .filter(item => item.name === name)
-    .pop()
-
-  if (node) {
-    return console.info('🐺 Already have base dir') // eslint-disable-line no-console
-  }
-
-  console.info(`🐺 Creating base dir from ${master.root}`) // eslint-disable-line no-console
+  await findBaseDir(config, ipfs)
 
   return ipfs.files.cp(master.root, config.ipfs.prefix)
 

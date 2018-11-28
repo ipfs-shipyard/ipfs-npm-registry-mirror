@@ -6,6 +6,7 @@
     "postinstall": "lerna bootstrap --ci",
     "reset": "lerna run --parallel clean && rm -rf packages/*/node_modules packages/*/package-lock.json && rm -rf node_modules package-lock.json && npm i --ignore-scripts && lerna bootstrap",
     "test": "lerna run --parallel test",
+    "test:node": "lerna run --parallel test",
     "coverage": "lerna run --parallel coverage",
     "build": "lerna run --parallel build",
     "deploy": "lerna run --parallel deploy",
