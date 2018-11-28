@@ -19,6 +19,8 @@ const s3Repo = require('./utils/s3-repo')
 module.exports = async (config, handlers = async () => {}) => {
   const ipfs = await getAnIPFS(config)
 
+  console.info(`🛫 Starting server`) // eslint-disable-line no-console
+
   const app = express()
   app.use(requestLog)
 
