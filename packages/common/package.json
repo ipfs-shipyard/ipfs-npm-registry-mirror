@@ -24,7 +24,7 @@
     "debug": "^4.0.1",
     "express": "^4.16.3",
     "express-prom-bundle": "^4.2.1",
-    "ipfs": "ipfs/js-ipfs#sharding-without-preloading",
+    "ipfs": "ipfs/js-ipfs#mfs-sharding-support",
     "ipfs-repo": "~0.25.0",
     "once": "^1.4.0",
     "promise-delay": "^2.1.0",
