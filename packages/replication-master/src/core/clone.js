@@ -37,10 +37,12 @@ module.exports = async (emitter, ipfs, options) => {
         const mfsPath = `${options.ipfs.prefix}/${data.json.name}`
 
         let mfsVersion = {}
+        let timer
 
         try {
+          timer = Date.now()
           mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
-          log(`Read cached manifest from ${mfsPath}`)
+          console.info(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)
         } catch (error) {
           if (error.message.includes('does not exist')) {
             log(`${mfsPath} not in MFS`)
@@ -55,12 +57,15 @@ module.exports = async (emitter, ipfs, options) => {
         })
 
         try {
+          timer = Date.now()
           await saveTarballs(manifest, ipfs, options)
+          console.info(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+          timer = Date.now()
           await saveManifest(manifest, ipfs, options)
+          console.info(`💾 Saved ${data.json.name} manifest in ${Date.now() - timer}ms`) // eslint-disable-line no-console
 
-          let updateEnd = Date.now()
           processed++
-          console.info(`🦕 [${data.seq}] processed ${manifest.name} in ${Math.round((updateEnd - updateStart) / 1000)}s, ${(processed / ((Date.now() - start) / 1000)).toFixed(3)} modules/s`) // eslint-disable-line no-console
+          console.info(`🦕 [${data.seq}] processed ${manifest.name} in ${Date.now() - updateStart}ms, ${(processed / ((Date.now() - start) / 1000)).toFixed(3)} modules/s`) // eslint-disable-line no-console
 
           emitter.emit('processed', manifest)
           emitter.emit('seq', data.seq)
