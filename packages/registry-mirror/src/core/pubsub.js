@@ -53,17 +53,17 @@ const updateRoot = async (config, ipfs, master) => {
 }
 
 const worker = async (config, ipfs) => {
+  let timer = Date.now()
   const master = await findMaster(config)
+  console.info(`🧚‍♀️ Found master id ${master.ipfs.id} in ${Date.now() - timer}ms`) // eslint-disable-line no-console
 
-  console.info(`🧚‍♀️ Found master id ${master.ipfs.id}`) // eslint-disable-line no-console
-
+  timer = Date.now()
   await subscribeToTopic(config, ipfs, master)
+  console.info(`🙋 Worker subscribed to ${master.topic} in ${Date.now() - timer}ms`) // eslint-disable-line no-console
 
-  console.info(`🙋 Worker subscribed to ${master.topic}`) // eslint-disable-line no-console
-
+  timer = Date.now()
   await updateRoot(config, ipfs, master)
-
-  console.info(`🦓 Got root`) // eslint-disable-line no-console
+  console.info(`🦓 Got root in ${Date.now() - timer}ms`) // eslint-disable-line no-console
 }
 
 module.exports = worker
