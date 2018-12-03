@@ -40,6 +40,7 @@ module.exports = async (emitter, ipfs, options) => {
         let timer
 
         try {
+          console.info(`📃 Reading ${data.json.name} cached manifest from ${mfsPath}`)
           timer = Date.now()
           mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
           console.info(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)

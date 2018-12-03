@@ -2,7 +2,7 @@
 
 'use strict'
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' || process.env.PROFILING) {
   const url = '/-/dashboard'
 
   console.info(`🔍 Enabling profiling at ${url}`) // eslint-disable-line no-console
