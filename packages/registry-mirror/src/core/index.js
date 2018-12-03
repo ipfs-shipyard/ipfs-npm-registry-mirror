@@ -45,6 +45,15 @@ module.exports = async (options) => {
     await replicationWorker(options, ipfs, app)
   })
 
+  // finished initialisation
+  await request(Object.assign({}, config.request, {
+    method: 'post',
+    uri: `${options.pubsub.master}/-/worker`,
+    json: true,
+    retries: 100,
+    retryDelay: 5000
+  }))
+
   let url = getExternalUrl(options)
 
   console.info(`🔧 Please either update your npm config with 'npm config set registry ${url}'`) // eslint-disable-line no-console

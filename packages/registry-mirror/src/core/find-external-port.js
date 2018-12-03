@@ -3,6 +3,10 @@
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 
 module.exports = async (options) => {
+  if (process.env.NODE_ENV === 'development') {
+    return 0
+  }
+
   const docker = await request(Object.assign({}, {
     uri: 'http://unix:/tmp/docker.sock:/containers/' + process.env.HOSTNAME + '/json',
     json: true,

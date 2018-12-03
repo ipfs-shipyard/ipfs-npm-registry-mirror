@@ -13,16 +13,6 @@ const findMaster = async (config) => {
   }))
 }
 
-const notifyMaster = async (config) => {
-  return request(Object.assign({}, config.request, {
-    method: 'post',
-    uri: config.pubsub.master,
-    json: true,
-    retries: 100,
-    retryDelay: 5000
-  }))
-}
-
 const handleUpdate = async (config, ipfs, event) => {
   if (event.type !== 'update') {
     return
@@ -74,8 +64,6 @@ const worker = async (config, ipfs) => {
   timer = Date.now()
   await updateRoot(config, ipfs, master)
   console.info(`🦓 Got root in ${Date.now() - timer}ms`) // eslint-disable-line no-console
-
-  await notifyMaster(config)
 }
 
 module.exports = worker

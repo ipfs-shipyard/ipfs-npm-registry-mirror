@@ -6,6 +6,8 @@ const findBaseDir = async (config, ipfs) => {
       hash: true
     })
 
+    console.info(`🌿 Root dir ${config.ipfs.prefix} is ${stats.hash}`) // eslint-disable-line no-console
+
     return stats.hash
   } catch (error) {
     if (error.message.includes('does not exist')) {
