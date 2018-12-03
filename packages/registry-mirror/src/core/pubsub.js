@@ -52,9 +52,9 @@ const subscribeToTopic = async (config, ipfs, master) => {
 }
 
 const updateRoot = async (config, ipfs, master) => {
-  await findBaseDir(config, ipfs)
+  return findBaseDir(config, ipfs)
 
-  return ipfs.files.cp(master.root, config.ipfs.prefix)
+  // return ipfs.files.cp(master.root, config.ipfs.prefix)
 
   // until js can resolve IPNS names remotely, just use the raw hash
   // const result = await ipfs.name.resolve(master.root)
