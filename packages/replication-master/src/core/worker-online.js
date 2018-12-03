@@ -1,17 +1,15 @@
 'use strict'
 
 const {
-  connect
+  online
 } = require('./workers')
 
 module.exports = () => {
   return async (request, response, next) => {
-    const info = {
-      index: connect()
-    }
+    online()
 
-    response.statusCode = 200
+    response.statusCode = 204
     response.setHeader('Content-type', 'application/json; charset=utf-8')
-    response.send(JSON.stringify(info, null, request.query.format === undefined ? 0 : 2))
+    response.end()
   }
 }
