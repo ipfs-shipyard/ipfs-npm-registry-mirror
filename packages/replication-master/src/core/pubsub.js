@@ -7,8 +7,6 @@ const topic = `ipfs-registry-pubsub-${hat()}`
 let lastBaseDir
 
 const publishIpnsName = async (config, ipfs) => {
-  return
-
   const baseDir = await findBaseDir(config, ipfs)
   let previousBaseDir = lastBaseDir
   lastBaseDir = baseDir

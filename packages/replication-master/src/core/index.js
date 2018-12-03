@@ -38,7 +38,7 @@ module.exports = async (options) => {
       await delay(options.clone.delay || 0)
 
       if (status().ready) {
-        break;
+        break
       }
 
       console.info(`⌚ Still waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`) // eslint-disable-line no-console
