@@ -10,6 +10,11 @@ services:
     ports:
       - '80:80'
       - '443:443'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - /etc/nginx/vhost.d
@@ -56,6 +61,11 @@ services:
     ports:
       - "8080:8080"
       - "4001:4001"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
 
   registry:
     build:
@@ -97,3 +107,8 @@ services:
       - "10080-10089:10008"
       - "10090-10099:10009"
       - "20000-20100:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
