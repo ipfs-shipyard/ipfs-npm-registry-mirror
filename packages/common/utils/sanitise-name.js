@@ -8,7 +8,7 @@ const sanitiseName = (name) => {
   }
 
   if (name.startsWith('@')) {
-    name = name.replace(/\//g, '%2f')
+    name = name.replace(/%2f/g, '/')
   }
 
   return name

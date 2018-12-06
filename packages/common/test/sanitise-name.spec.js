@@ -9,6 +9,7 @@ const sanitiseName = require('../utils/sanitise-name')
 describe('sanitise-name', () => {
   it('should sanitise a package name', () => {
     expect(sanitiseName('hello')).to.equal('hello')
-    expect(sanitiseName(' /@hello/blah  ')).to.equal('@hello%2fblah')
+    expect(sanitiseName(' /@hello/blah  ')).to.equal('@hello/blah')
+    expect(sanitiseName(' /@hello%2fblah  ')).to.equal('@hello/blah')
   })
 })

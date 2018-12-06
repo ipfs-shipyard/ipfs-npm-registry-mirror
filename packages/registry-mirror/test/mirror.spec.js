@@ -216,7 +216,7 @@ describe('mirror', function () {
       }
     }
 
-    upstreamModules[`/${moduleName.replace('/', '%2f')}`] = (request, response) => {
+    upstreamModules[`/${moduleName}`] = (request, response) => {
       response.statusCode = 200
       response.end(JSON.stringify(data))
     }
