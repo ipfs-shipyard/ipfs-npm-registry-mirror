@@ -47,6 +47,13 @@ module.exports = (config, ipfs, app) => {
         return
       }
 
+      if (error.message.includes('in available versions')) {
+        response.statusCode = 404
+        response.send(lol(`💥 Could not load ${file}, version unavailable`))
+
+        return
+      }
+
       // a 500 will cause the npm client to retry
       response.statusCode = 500
       response.send(lol(`💥 ${error.message}`))
