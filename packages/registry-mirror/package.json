@@ -1,6 +1,6 @@
 {
   "name": "ipfs-npm-registry-mirror",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Serves tarballs and json manifests",
   "main": "src/cli/bin.js",
   "bin": {
@@ -25,7 +25,7 @@
     "debug": "^4.0.1",
     "dnscache": "^1.0.1",
     "express-http-proxy": "^1.4.0",
-    "ipfs-registry-mirror-common": "^1.0.11",
+    "ipfs-registry-mirror-common": "^1.0.12",
     "promise-delay": "^2.1.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
