@@ -7,7 +7,7 @@ const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const saveTarballs = require('./save-tarballs')
 
 let start = Date.now()
-let processed = 0
+let processed = []
 
 module.exports = async (emitter, ipfs, options) => {
   console.info(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`) // eslint-disable-line no-console
@@ -54,8 +54,14 @@ module.exports = async (emitter, ipfs, options) => {
           await saveManifest(manifest, ipfs, options)
           console.info(`💾 Saved ${data.json.name} manifest in ${Date.now() - timer}ms`) // eslint-disable-line no-console
 
-          processed++
-          console.info(`🦕 [${data.seq}] processed ${manifest.name} in ${Date.now() - updateStart}ms, ${(processed / ((Date.now() - start) / 1000)).toFixed(3)} modules/s`) // eslint-disable-line no-console
+          processed.push(Date.now())
+          const oneHourAgo = Date.now() - 3600000
+
+          processed = processed.filter(time => {
+            return time > oneHourAgo
+          })
+
+          console.info(`🦕 [${data.seq}] processed ${manifest.name} in ${Date.now() - updateStart}ms, ${(processed.length / 3600).toFixed(3)} modules/s`) // eslint-disable-line no-console
 
           emitter.emit('processed', manifest)
           emitter.emit('seq', data.seq)
