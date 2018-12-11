@@ -8,18 +8,9 @@ const saveTarballs = require('./save-tarballs')
 
 let start = Date.now()
 let processed = 0
-const HALF_AN_HOUR = 1800000
 
 module.exports = async (emitter, ipfs, options) => {
   console.info(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`) // eslint-disable-line no-console
-
-  let lastUpdate = 0
-
-  setInterval(() => {
-    if (Date.now() - lastUpdate > HALF_AN_HOUR) {
-      throw new Error('💥 Did not receive an update for 30 minutes, restarting')
-    }
-  }, HALF_AN_HOUR)
 
   return new Promise((resolve) => {
     follow(Object.assign({}, options.follow, {
@@ -27,8 +18,6 @@ module.exports = async (emitter, ipfs, options) => {
         if (!data.json || !data.json.name) {
           return callback() // Bail, something is wrong with this change
         }
-
-        lastUpdate = Date.now()
 
         console.info(`🎉 Updated version of ${data.json.name}`) // eslint-disable-line no-console
         const updateStart = Date.now()
@@ -78,6 +67,14 @@ module.exports = async (emitter, ipfs, options) => {
         callback()
       }
     }), (stream) => {
+      stream.on('restart', () => {
+        console.info('🔃 Feed restarting due to inactivity') // eslint-disable-line no-console
+      })
+
+      stream.on('error', (error) => {
+        console.info(`💥 Feed error - ${error}`) // eslint-disable-line no-console
+      })
+
       resolve(stream)
     })
   })
