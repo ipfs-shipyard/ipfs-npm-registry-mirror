@@ -4,6 +4,7 @@ services:
 
   proxy:
     image: jwilder/nginx-proxy:alpine
+    mem_limit: 1024m
     links:
       - replicate
       - registry
@@ -25,6 +26,7 @@ services:
 
   letsencrypt-nginx-proxy-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
+    mem_limit: 1024m
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     volumes_from:
@@ -36,6 +38,7 @@ services:
       dockerfile: packages/replication-master/Dockerfile
     restart: 'always'
     env_file: .env
+    mem_limit: 4608m
     environment:
       - VIRTUAL_HOST=replication.registry.js.ipfs.io
       - VIRTUAL_PORT=8080
@@ -68,6 +71,7 @@ services:
       dockerfile: packages/registry-mirror/Dockerfile
     restart: 'always'
     env_file: .env
+    mem_limit: 2048m
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     environment:
@@ -110,6 +114,7 @@ services:
 
   cadvisor:
     image: google/cadvisor:latest
+    mem_limit: 1024m
     container_name: cadvisor
     ports:
       - 8080:8080
