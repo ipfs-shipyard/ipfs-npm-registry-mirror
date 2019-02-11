@@ -36,8 +36,6 @@ services:
       dockerfile: packages/replication-master/Dockerfile
     restart: 'always'
     env_file: .env
-    volumes:
-       - /usr/local/ipfs-npm-registry-mirror:/usr/local/ipfs-npm-registry-mirror
     environment:
       - VIRTUAL_HOST=replication.registry.js.ipfs.io
       - VIRTUAL_PORT=8080
@@ -54,13 +52,10 @@ services:
       - STORE_S3_ACCESS_KEY_ID=${STORE_S3_ACCESS_KEY_ID}
       - STORE_S3_SECRET_ACCESS_KEY=${STORE_S3_SECRET_ACCESS_KEY}
       - STORE_S3_PATH=replication-master
-      - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
+      - FOLLOW_SEQ_FILE=seq.txt
       - CLONE_DELAY=30000
       - FOLLOW_CONCURRENCY=20
       - REQUEST_MAX_SOCKETS=20
-    ports:
-      - "8080:8080"
-      - "4001:4001"
     logging:
       driver: "json-file"
       options:
@@ -85,7 +80,7 @@ services:
       - EXTERNAL_HOST=registry.js.ipfs.io
       - EXTERNAL_PORT=443
       - EXTERNAL_IP=35.178.192.119
-      - IPFS_STORE_TYPE=s3
+      - IPFS_STORE_TYPE=fs
       - STORE_S3_REGION=${STORE_S3_REGION}
       - STORE_S3_BUCKET=${STORE_S3_BUCKET}
       - STORE_S3_ACCESS_KEY_ID=${STORE_S3_ACCESS_KEY_ID}
@@ -117,12 +112,12 @@ services:
     image: google/cadvisor:latest
     container_name: cadvisor
     ports:
-    - 8080:8080
+      - 8080:8080
     volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     depends_on:
-    - replicate
-    - registry
+      - replicate
+      - registry

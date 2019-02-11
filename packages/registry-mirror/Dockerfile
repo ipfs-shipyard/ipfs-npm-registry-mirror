@@ -14,7 +14,6 @@ COPY ./packages/common/package-lock.json /app/packages/common/package-lock.json
 COPY ./packages/registry-mirror/package.json /app/packages/registry-mirror/package.json
 COPY ./packages/registry-mirror/package-lock.json /app/packages/registry-mirror/package-lock.json
 
-
 WORKDIR /app
 
 RUN npm install --production
@@ -26,4 +25,4 @@ COPY ./packages/registry-mirror/src /app/packages/registry-mirror/src
 
 WORKDIR /app/packages/registry-mirror
 
-CMD node --max-old-space-size=4096 .
+CMD node .

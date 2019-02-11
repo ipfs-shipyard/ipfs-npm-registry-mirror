@@ -120,7 +120,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('follow-seq-file', {
       describe: 'Where to store the seq file of how far through the npm feed we are',
-      default: '/tmp/registry-follow.seq'
+      default: 'seq.txt'
     })
     .options('follow-inactivity-ms', {
       describe: 'If no updates are received in this time, restart the feed',

@@ -5,6 +5,7 @@ const log = require('debug')('ipfs:registry-mirror:clone')
 const replaceTarballUrls = require('ipfs-registry-mirror-common/utils/replace-tarball-urls')
 const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const saveTarballs = require('./save-tarballs')
+const sequenceFile = require('./sequence-file')
 
 let start = Date.now()
 let processed = []
@@ -71,7 +72,8 @@ module.exports = async (emitter, ipfs, options) => {
         }
 
         callback()
-      }
+      },
+      seq: options.ipfs.store === 's3' ? sequenceFile(options.follow.seqFile, options.ipfs.s3) : undefined
     }), (stream) => {
       stream.on('restart', () => {
         console.info('🔃 Feed restarting due to inactivity') // eslint-disable-line no-console
