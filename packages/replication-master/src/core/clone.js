@@ -7,7 +7,6 @@ const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const saveTarballs = require('./save-tarballs')
 const sequenceFile = require('./sequence-file')
 
-let start = Date.now()
 let processed = []
 
 module.exports = async (emitter, ipfs, options) => {

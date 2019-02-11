@@ -18,7 +18,7 @@ module.exports = (seqFile, { bucket, region, accessKeyId, secretAccessKey }) => 
         Key: seqFile
       }, (err, data) => {
         if (err) {
-          console.error(`💥 Could not load seq file from ${seqFile} - ${error}`) // eslint-disable-line no-console
+          console.error(`💥 Could not load seq file from ${seqFile} - ${err}`) // eslint-disable-line no-console
           return callback()
         }
 
