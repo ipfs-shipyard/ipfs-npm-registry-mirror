@@ -112,17 +112,39 @@ services:
         max-size: "1m"
         max-file: "3"
 
-  cadvisor:
-    image: google/cadvisor:latest
+  spiped:
+    restart: always
+    env_file: .env
+    build:
+      context: .
+      dockerfile: monitoring/spiped
+      args:
+        SPIPED_KEY: ${SPIPED_KEY}
+        NETDATA_EIP: ${NETDATA_EIP}
     mem_limit: 1024m
-    container_name: cadvisor
-    ports:
-      - 8080:8080
+
+  netdata:
+    restart: always
+    mem_limit: 1024m
+    hostname: registry.js.ipfs.io
+    env_file: .env
+    build:
+      context: .
+      dockerfile: monitoring/netdata
+      args:
+        NETDATA_API_KEY: ${NETDATA_API_KEY}
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # https://docs.netdata.cloud/packaging/docker/#docker-container-names-resolution
+      - PGID=115
     depends_on:
+      - spiped
       - replicate
       - registry

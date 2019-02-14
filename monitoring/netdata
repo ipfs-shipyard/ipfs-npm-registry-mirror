@@ -1,0 +1,16 @@
+FROM netdata/netdata
+
+ARG NETDATA_API_KEY
+
+RUN echo $'[global]\n\
+  memory mode = none\n\
+  hostname = registry.js.ipfs.io\n\
+[health]\n\
+  enabled = no\n ' > /etc/netdata/netdata.conf
+
+RUN echo $'[stream]\n\
+    enabled = yes\n\
+    destination = spiped:20000\n\
+    api key = '$NETDATA_API_KEY$'\n ' > /etc/netdata/stream.conf
+
+RUN chown root:netdata /etc/netdata/stream.conf
