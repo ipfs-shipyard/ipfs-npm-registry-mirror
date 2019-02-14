@@ -25,7 +25,15 @@ const readOrDownloadTarball = async (config, ipfs, path) => {
     throw new Error(`CID for ${packageName}@${packageVersion} missing after download`)
   }
 
-  return ipfs.catReadableStream(`/ipfs/${version.dist.cid}`)
+  let v0Cid
+
+  try {
+    v0Cid = new CID(version.dist.cid).toV0().toBaseEncodedString()
+  } catch (error) {
+    throw new Error(`Could not turn ${version.dist.cid} into a CID - ${error.stack}`)
+  }
+
+  return ipfs.catReadableStream(`/ipfs/${v0Cid}`)
 }
 
 const extractPackageDetails = (path) => {
