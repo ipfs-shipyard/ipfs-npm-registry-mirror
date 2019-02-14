@@ -1,8 +1,6 @@
 'use strict'
 
-const S3 = require('aws-sdk/clients/s3')
-const S3Store = require('datastore-s3')
-const IPFSRepo = require('ipfs-repo')
+const { createRepo } = require('datastore-s3')
 
 const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMissing }) => {
   if (process.env.NODE_ENV === 'development') {
@@ -11,57 +9,14 @@ const s3Repo = ({ region, bucket, path, accessKeyId, secretAccessKey, createIfMi
 
   console.info(`☁️  Using s3 storage ${region}:${bucket}/${path}`) // eslint-disable-line no-console
 
-  const storeconfig = {
-    s3: new S3({
-      params: {
-        Bucket: bucket
-      },
-      region,
-      accessKeyId,
-      secretAccessKey
-    }),
+  return createRepo({
+    path,
     createIfMissing
-  }
-
-  const store = new S3Store(path, storeconfig)
-
-  class Store {
-    constructor () {
-      return store
-    }
-  }
-
-  const lock = {
-    getLockfilePath: () => {},
-    lock: (dir, cb) => {
-      cb(null, lock.getCloser())
-    },
-    getCloser: (path) => {
-      return {
-        close: (cb) => {
-          cb()
-        }
-      }
-    },
-    locked: (dir, cb) => {
-      cb(null, false)
-    }
-  }
-
-  return new IPFSRepo(path, {
-    storageBackends: {
-      root: Store,
-      blocks: Store,
-      keys: Store,
-      datastore: Store
-    },
-    storageBackendconfig: {
-      root: storeconfig,
-      blocks: storeconfig,
-      keys: storeconfig,
-      datastore: storeconfig
-    },
-    lock: lock
+  }, {
+    bucket,
+    region,
+    accessKeyId,
+    secretAccessKey
   })
 }
 

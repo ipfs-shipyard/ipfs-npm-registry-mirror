@@ -18,9 +18,9 @@
   },
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
-    "aws-sdk": "^2.325.0",
+    "aws-sdk": "^2.402.0",
     "cids": "~0.5.5",
-    "datastore-s3": "~0.2.0",
+    "datastore-s3": "~0.2.3",
     "debug": "^4.0.1",
     "express": "^4.16.3",
     "express-prom-bundle": "^5.0.2",
