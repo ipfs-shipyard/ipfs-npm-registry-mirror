@@ -33,3 +33,4 @@ node_modules
 docs
 .env
 seq.txt
+*.heapsnapshot

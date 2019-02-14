@@ -29,12 +29,12 @@ module.exports = (overrides = {}) => {
       store: option(process.env.IPFS_STORE_TYPE, overrides.ipfsStoreType),
 
       s3: {
-        region: option(process.env.STORE_S3_REGION, overrides.storeS3Region),
-        bucket: option(process.env.STORE_S3_BUCKET, overrides.storeS3Bucket),
-        path: option(process.env.STORE_S3_PATH, overrides.storeS3Path),
-        accessKeyId: option(process.env.STORE_S3_ACCESS_KEY_ID, overrides.storeS3AccessKeyId),
-        secretAccessKey: option(process.env.STORE_S3_SECRET_ACCESS_KEY, overrides.storeS3SecretAccessKey),
-        createIfMissing: option(process.env.STORE_S3_CREATE_IF_MISSING, overrides.createIfMissing)
+        region: option(process.env.STORE_S3_REGION, overrides.ipfsStoreS3Region),
+        bucket: option(process.env.STORE_S3_BUCKET, overrides.ipfsStoreS3Bucket),
+        path: option(process.env.STORE_S3_PATH, overrides.ipfsStoreS3Path),
+        accessKeyId: option(process.env.STORE_S3_ACCESS_KEY_ID, overrides.ipfsStoreS3AccessKeyId),
+        secretAccessKey: option(process.env.STORE_S3_SECRET_ACCESS_KEY, overrides.ipfsStoreS3SecretAccessKey),
+        createIfMissing: option(process.env.STORE_S3_CREATE_IF_MISSING, overrides.ipfsStoreS3CreateIfMissing)
       },
 
       fs: {

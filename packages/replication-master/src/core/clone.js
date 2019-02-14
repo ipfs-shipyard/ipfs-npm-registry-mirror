@@ -72,7 +72,7 @@ module.exports = async (emitter, ipfs, options) => {
 
         callback()
       },
-      seq: options.ipfs.store === 's3' ? sequenceFile(options.follow.seqFile, options.ipfs.s3) : undefined
+      seq: sequenceFile(options)
     }), (stream) => {
       stream.on('restart', () => {
         console.info('🔃 Feed restarting due to inactivity') // eslint-disable-line no-console

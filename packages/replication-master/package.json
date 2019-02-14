@@ -10,7 +10,8 @@
     "test": "aegir test -t node",
     "coverage": "aegir coverage",
     "lint": "aegir lint",
-    "start": "node ."
+    "start": "node .",
+    "debug": "DEBUG='ipfs:*' NODE_ENV=development PROFILING=true node --inspect . --clone-delay 10000 --ipfs-store-type=s3 --ipfs-store-s3-bucket=npm-on-ipfs --ipfs-store-s3-region=us-west-1 --ipfs-store-s3-path=replication-master-test --follow-seq-file=seq-test.txt --follow-concurrency=1 --request-max-sockets=1"
   },
   "repository": {
     "type": "git",

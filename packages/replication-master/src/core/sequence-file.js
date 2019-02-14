@@ -2,7 +2,14 @@
 
 const S3 = require('aws-sdk/clients/s3')
 
-module.exports = (seqFile, { bucket, region, accessKeyId, secretAccessKey }) => {
+module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAccessKey } }, follow: { seqFile } }) => {
+  if (store !== 's3') {
+    console.info('📁 Using fs sequence file') // eslint-disable-line no-console
+    return undefined
+  }
+
+  console.info('☁️  Using s3 sequence file') // eslint-disable-line no-console
+
   const s3 = new S3({
     params: {
       Bucket: bucket
@@ -19,7 +26,7 @@ module.exports = (seqFile, { bucket, region, accessKeyId, secretAccessKey }) => 
       }, (err, data) => {
         if (err) {
           console.error(`💥 Could not load seq file from ${seqFile} - ${err}`) // eslint-disable-line no-console
-          return callback()
+          return callback(0)
         }
 
         const seq = data.Body.toString('utf8')
