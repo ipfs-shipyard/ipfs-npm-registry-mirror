@@ -4,6 +4,9 @@ const log = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const CID = require('cids')
 const crypto = require('crypto')
+const PQueue = require('p-queue')
+
+let queue
 
 const saveTarball = async (manifest, versionNumber, ipfs, options) => {
   const version = manifest.versions[versionNumber]
@@ -84,13 +87,20 @@ const downloadFile = async (url, shasum, ipfs, options) => {
 }
 
 const saveTarballs = async (pkg, ipfs, options) => {
+  if (!queue) {
+    queue = new PQueue({ concurrency: options.request.concurrency })
+  }
+
   return Promise.all(
     Object.keys(pkg.versions || {})
       .map(versionNumber => {
-        return saveTarball(pkg, versionNumber, ipfs, options)
-          .catch(error => {
+        return queue.add(async () => {
+          try {
+            await saveTarball(pkg, versionNumber, ipfs, options)
+          } catch (err) {
             console.error(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, error) // eslint-disable-line no-console
-          })
+          }
+        })
       })
   )
 }

@@ -116,7 +116,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('follow-concurrency', {
       describe: 'How many registry updates to process at once',
-      default: 100
+      default: 5
     })
     .option('follow-seq-file', {
       describe: 'Where to store the seq file of how far through the npm feed we are',
@@ -152,9 +152,9 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to re-use connections',
       default: true
     })
-    .option('request-max-sockets', {
-      describe: 'How many concurrent requests to have in flight',
-      default: 100
+    .option('request-concurrency', {
+      describe: 'How many simultaneous requests to make',
+      default: 5
     })
 }, require('../core'))
   .argv

@@ -58,7 +58,7 @@ services:
       - FOLLOW_SEQ_FILE=seq.txt
       - CLONE_DELAY=30000
       - FOLLOW_CONCURRENCY=5
-      - REQUEST_MAX_SOCKETS=20
+      - REQUEST_CONCURRENCY=5
     logging:
       driver: "json-file"
       options:

@@ -61,9 +61,7 @@ module.exports = (overrides = {}) => {
       retryDelay: option(process.env.REQUEST_RETRY_DELAY, overrides.requestRetryDelay),
       timeout: option(process.env.REQUEST_TIMEOUT, overrides.requestTimeout),
       forever: option(toBoolean(process.env.REQUEST_KEEP_ALIVE), overrides.requestKeepAlive),
-      pool: {
-        maxSockets: option(Number(process.env.REQUEST_MAX_SOCKETS), overrides.requestMaxSockets)
-      }
+      concurrency: option(process.env.REQUEST_CONCURRENCY, overrides.requestConcurrency),
     }
   }
 }
