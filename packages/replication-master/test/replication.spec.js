@@ -35,6 +35,7 @@ describe('replication', function () {
       registry: `http://127.0.0.1:${registry.address().port}`,
       requestRetries: 5,
       requestRetryDelay: 100,
+      requestConcurrency: 5,
       ipfsMfsPrefix: baseDir,
       requestTimeout: 1000,
       ipfsStoreType: 'fs',

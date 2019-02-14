@@ -98,7 +98,7 @@ const saveTarballs = async (pkg, ipfs, options) => {
           try {
             await saveTarball(pkg, versionNumber, ipfs, options)
           } catch (err) {
-            console.error(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, error) // eslint-disable-line no-console
+            console.error(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, err) // eslint-disable-line no-console
           }
         })
       })

@@ -26,7 +26,7 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
       }, (err, data) => {
         if (err) {
           console.error(`💥 Could not load seq file from ${seqFile} - ${err}`) // eslint-disable-line no-console
-          return callback(0)
+          return callback(0) // eslint-disable-line standard/no-callback-literal
         }
 
         const seq = data.Body.toString('utf8')
