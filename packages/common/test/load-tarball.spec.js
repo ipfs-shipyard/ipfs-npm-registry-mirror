@@ -7,6 +7,7 @@ const expect = require('chai')
   .use(require('dirty-chai'))
   .expect
 const hat = require('hat')
+const CID = require('cids')
 
 describe('load-tarball', () => {
   let loadTarball
@@ -68,7 +69,7 @@ describe('load-tarball', () => {
       .returns(pkg)
 
     ipfs.catReadableStream
-      .withArgs(`/ipfs/${pkg.versions[packageVersion].dist.cid}`)
+      .withArgs(new CID(pkg.versions[packageVersion].dist.cid))
       .resolves('ok')
 
     const result = await loadTarball(config, ipfs, path)
