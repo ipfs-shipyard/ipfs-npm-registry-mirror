@@ -3,7 +3,9 @@ FROM spiped
 ARG SPIPED_KEY
 ARG NETDATA_EIP
 
+EXPOSE 20000
+
 RUN mkdir /etc/spiped
 RUN echo $SPIPED_KEY > /etc/spiped/keyfile
 
-CMD -F -e -s [127.0.0.1]:20000 -t $NETDATA_EIP:20000 -k /etc/spiped/keyfile
+CMD spiped -F -e -s [0.0.0.0]:20000 -t $NETDATA_EIP:20000 -k /etc/spiped/keyfile

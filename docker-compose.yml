@@ -144,6 +144,8 @@ services:
     environment:
       # https://docs.netdata.cloud/packaging/docker/#docker-container-names-resolution
       - PGID=115
+    links:
+      - spiped
     depends_on:
       - spiped
       - replicate
