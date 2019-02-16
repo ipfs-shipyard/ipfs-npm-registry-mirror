@@ -71,7 +71,7 @@ module.exports = async (config, handlers = async () => {}) => {
 }
 
 const randomPort = () => {
-  return Math.floor(Math.random() * 65535) + 1000
+  return Math.floor(Math.random() * 64535) + 1000
 }
 
 const getAnIPFS = promisify((config, callback) => {
