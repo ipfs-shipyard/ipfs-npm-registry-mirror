@@ -2,6 +2,7 @@
 
 const hat = require('hat')
 const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 const topic = `ipfs-registry-pubsub-${hat()}`
 let lastBaseDir
@@ -12,12 +13,12 @@ const publishIpnsName = async (config, ipfs) => {
   lastBaseDir = baseDir
 
   if (baseDir !== previousBaseDir) {
-    console.info(`🗞️  Publishing IPNS update, base dir is /ipfs/${baseDir}`) // eslint-disable-line no-console
+    log(`🗞️  Publishing IPNS update, base dir is /ipfs/${baseDir}`)
 
     // No point until js-ipfs can resolve remote ipns names.  also seems to cause the process to hang.
     // await ipfs.name.publish(`/ipfs/${baseDir}
 
-    console.info(`📰 Published IPNS update`) // eslint-disable-line no-console
+    log(`📰 Published IPNS update`)
   }
 }
 
@@ -27,7 +28,7 @@ const publishUpdate = async (config, ipfs, pkg) => {
     manifest: pkg
   })))
 
-  console.info(`📰 Broadcast update of ${pkg.name} module`) // eslint-disable-line no-console
+  log(`📰 Broadcast update of ${pkg.name} module`)
 }
 
 const master = async (config, ipfs, emitter) => {
@@ -35,13 +36,13 @@ const master = async (config, ipfs, emitter) => {
     try {
       await publishIpnsName(config, ipfs)
     } catch (error) {
-      console.error(`💥 Error publishing IPNS name - ${error}`) // eslint-disable-line no-console
+      log(`💥 Error publishing IPNS name`, error)
     }
 
     try {
       await publishUpdate(config, ipfs, pkg)
     } catch (error) {
-      console.error('💥 Error publishing to topic', error) // eslint-disable-line no-console
+      log('💥 Error publishing to topic', error)
     }
   })
 

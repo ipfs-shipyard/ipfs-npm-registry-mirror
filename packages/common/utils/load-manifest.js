@@ -1,10 +1,11 @@
 'use strict'
 
 const request = require('./retry-request')
-const log = require('debug')('ipfs:registry-mirror:utils:load-manifest')
+const debug = require('debug')('ipfs:registry-mirror:utils:load-manifest')
 const saveManifest = require('./save-manifest')
 const replaceTarballUrls = require('./replace-tarball-urls')
 const timeout = require('./timeout-promise')
+const log = require('./log')
 
 const hasBackupRegistry = (options) => {
   return options.npm && options.npm.registry
@@ -15,20 +16,20 @@ const loadFromMfs = async (packageName, ipfs, options) => {
   const mfsPath = `${options.ipfs.prefix}/${packageName}`
 
   try {
-    log(`Reading from mfs ${mfsPath}`)
+    debug(`Reading from mfs ${mfsPath}`)
     const start = Date.now()
 
     json = await ipfs.files.read(mfsPath)
 
-    log(`Read from mfs ${mfsPath} in ${Date.now() - start}ms`)
+    debug(`Read from mfs ${mfsPath} in ${Date.now() - start}ms`)
 
     json = JSON.parse(json)
   } catch (error) {
     if (error.message.includes('does not exist')) {
-      log(`${mfsPath} not in MFS`)
+      debug(`${mfsPath} not in MFS`)
     }
 
-    log(`Could not read ${mfsPath}`, error)
+    debug(`Could not read ${mfsPath}`, error)
   }
 
   return json
@@ -39,7 +40,7 @@ const requestFromRegistry = async (packageName, registry, ipfs, options) => {
   const uri = `${registry}/${packageName}`
 
   try {
-    log(`Fetching ${uri}`)
+    debug(`Fetching ${uri}`)
     const start = Date.now()
 
     json = await request(Object.assign({}, options.request, {
@@ -47,9 +48,9 @@ const requestFromRegistry = async (packageName, registry, ipfs, options) => {
       json: true
     }))
 
-    log(`Fetched ${uri} in ${Date.now() - start}ms`)
+    debug(`Fetched ${uri} in ${Date.now() - start}ms`)
   } catch (error) {
-    log(`Could not download ${uri}`, error)
+    debug(`Could not download ${uri}`, error)
   }
 
   return json
@@ -79,7 +80,7 @@ const loadFromRegistry = async (packageName, ipfs, options) => {
       result = await timeout(loadFromMainRegistry(packageName, ipfs, options), options.registryReadTimeout)
     } catch (error) {
       if (error.code === 'ETIMEOUT') {
-        log(`Fetching ${packageName} timed out after ${options.registryReadTimeout}ms`)
+        debug(`Fetching ${packageName} timed out after ${options.registryReadTimeout}ms`)
       }
     }
 
@@ -90,7 +91,7 @@ const loadFromRegistry = async (packageName, ipfs, options) => {
     try {
       return await loadFromBackupRegistry(packageName, ipfs, options)
     } catch (error) {
-      log(`Could not download ${uri}`, error)
+      debug(`Could not download ${uri}`, error)
     }
 
     return {}
@@ -130,7 +131,7 @@ const loadManifest = async (options, ipfs, packageName) => {
     return mfsVersion
   }
 
-  console.info(`🆕 New version${newVerisons.length > 1 ? 's': ''} of ${packageName} detected - ${newVerisons.join(', ')}`)
+  log(`🆕 New version${newVerisons.length > 1 ? 's': ''} of ${packageName} detected - ${newVerisons.join(', ')}`)
 
   registryVersion = replaceTarballUrls(options, registryVersion)
 

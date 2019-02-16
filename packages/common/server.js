@@ -15,11 +15,12 @@ const metrics = prometheus({
   autoregister: false
 })
 const s3Repo = require('./utils/s3-repo')
+const log = require('./utils/log')
 
 module.exports = async (config, handlers = async () => {}) => {
   const ipfs = await getAnIPFS(config)
 
-  console.info(`🛫 Starting server`) // eslint-disable-line no-console
+  log(`🛫 Starting server`)
 
   const app = express()
   app.use(requestLog)
@@ -44,7 +45,7 @@ module.exports = async (config, handlers = async () => {}) => {
         config.http.port = server.address().port
       }
 
-      console.info(`🚀 Server running on port ${config.http.port}`) // eslint-disable-line no-console
+      log(`🚀 Server running on port ${config.http.port}`)
 
       resolve({
         server,
@@ -56,7 +57,7 @@ module.exports = async (config, handlers = async () => {}) => {
             ipfs.stop()
           ])
             .then(() => {
-              console.info('✋ Server stopped') // eslint-disable-line no-console
+              log('✋ Server stopped')
             })
         }
       })
@@ -77,13 +78,13 @@ const getAnIPFS = promisify((config, callback) => {
   if (config.ipfs.port && config.ipfs.host) {
     config.store.port = config.ipfs.port
     config.store.host = config.ipfs.host
-    console.info(`👺 Connecting to remote IPFS daemon at ${config.ipfs.port}:${config.ipfs.host}`) // eslint-disable-line no-console
+    log(`👺 Connecting to remote IPFS daemon at ${config.ipfs.port}:${config.ipfs.host}`)
   } else {
-    console.info('😈 Using in-process IPFS daemon') // eslint-disable-line no-console
+    log('😈 Using in-process IPFS daemon')
   }
 
   if (config.ipfs.store === 's3') {
-    console.info('☁️  Using s3 repo') // eslint-disable-line no-console
+    log('☁️  Using s3 repo')
     config.ipfs.repo = s3Repo({
       region: config.ipfs.s3.region,
       path: config.ipfs.s3.path,
@@ -95,11 +96,11 @@ const getAnIPFS = promisify((config, callback) => {
   }
 
   if (config.ipfs.store === 'fs') {
-    console.info('📁 Using fs repo') // eslint-disable-line no-console
+    log('📁 Using fs repo')
     config.ipfs.repo = config.ipfs.fs.repo
   }
 
-  console.info(`🏁 Starting an IPFS instance`) // eslint-disable-line no-console
+  log(`🏁 Starting an IPFS instance`)
 
   const ipfs = new IPFS({
     repo: config.ipfs.repo,

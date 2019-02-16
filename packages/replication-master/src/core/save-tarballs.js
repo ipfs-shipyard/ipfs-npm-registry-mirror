@@ -1,10 +1,11 @@
 'use strict'
 
-const log = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
+const debug = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const CID = require('cids')
 const crypto = require('crypto')
 const PQueue = require('p-queue')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 let queue
 
@@ -14,7 +15,7 @@ const saveTarball = async (manifest, versionNumber, ipfs, options) => {
   validate(version, versionNumber, manifest.name)
 
   if (version.dist.cid) {
-    log(`Skipping version ${versionNumber} of ${manifest.name} - already downloaded`)
+    debug(`Skipping version ${versionNumber} of ${manifest.name} - already downloaded`)
 
     return
   }
@@ -24,7 +25,7 @@ const saveTarball = async (manifest, versionNumber, ipfs, options) => {
 
   version.dist.cid = cid
 
-  console.info(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`) // eslint-disable-line no-console
+  log(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
 }
 
 const validate = (version, versionNumber, packageName) => {
@@ -46,7 +47,7 @@ const validate = (version, versionNumber, packageName) => {
 }
 
 const downloadFile = async (url, shasum, ipfs, options) => {
-  console.info(`⬇️  Downloading ${url}`) // eslint-disable-line no-console
+  log(`⬇️  Downloading ${url}`)
   const start = Date.now()
 
   const hash = crypto.createHash('sha1')
@@ -60,7 +61,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
       stream.pipe(hash)
 
       stream.once('end', () => {
-        console.info(`✅ Downloaded ${url} in ${Date.now() - start}ms`) // eslint-disable-line no-console
+        log(`✅ Downloaded ${url} in ${Date.now() - start}ms`)
       })
 
       return ipfs.add(stream, {
@@ -78,7 +79,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
         throw new Error(`File downloaded from ${url} had invalid shasum ${result} - expected ${shasum}`)
       }
 
-      console.info(`🌍 Added ${url} to IPFS in ${Date.now() - start}ms`) // eslint-disable-line no-console
+      log(`🌍 Added ${url} to IPFS in ${Date.now() - start}ms`)
 
       const file = files.pop()
 
@@ -98,7 +99,7 @@ const saveTarballs = async (pkg, ipfs, options) => {
           try {
             await saveTarball(pkg, versionNumber, ipfs, options)
           } catch (err) {
-            console.error(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, err) // eslint-disable-line no-console
+            log(`💥 Error storing tarball ${pkg.name} ${versionNumber}`, err)
           }
         })
       })

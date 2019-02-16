@@ -1,6 +1,6 @@
 'use strict'
 
-const log = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
+const debug = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
 const request = require('./retry-request')
 const CID = require('cids')
 const crypto = require('crypto')
@@ -9,6 +9,7 @@ const saveManifest = require('./save-manifest')
 const {
   PassThrough
 } = require('stream')
+const log = require('./log')
 
 const saveTarball = (config, packageName, versionNumber, ipfs, localOnly, done = () => {}) => {
   const outputStream = new PassThrough()
@@ -29,14 +30,14 @@ const saveTarball = (config, packageName, versionNumber, ipfs, localOnly, done =
       const startTime = Date.now()
       const cid = await downloadFile(config, ipfs, version.dist.source, version.dist.shasum, outputStream)
 
-      console.info(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
+      log(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
 
       await updateCid(config, ipfs, packageName, versionNumber, cid, localOnly)
 
       done()
     })
     .catch(error => {
-      console.error(`💥 Error storing tarball ${packageName} ${versionNumber} - ${error.stack}`)
+      log(`💥 Error storing tarball ${packageName} ${versionNumber}`, error)
 
       done(error)
     })

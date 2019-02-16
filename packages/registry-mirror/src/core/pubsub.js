@@ -3,6 +3,7 @@
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 const findMaster = async (config) => {
   return request(Object.assign({}, config.request, {
@@ -18,12 +19,12 @@ const handleUpdate = async (config, ipfs, event) => {
     return
   }
 
-  console.info('🦄 Incoming update for', event.manifest.name) // eslint-disable-line no-console
+  log('🦄 Incoming update for', event.manifest.name)
 
   try {
     await saveManifest(event.manifest, ipfs, config)
   } catch (error) {
-    console.error(`💥 Could not update ${event.manifest.name} - ${error}`) // eslint-disable-line no-console
+    log(`💥 Could not update ${event.manifest.name} - ${error}`)
   }
 }
 
@@ -36,7 +37,7 @@ const subscribeToTopic = async (config, ipfs, master) => {
     try {
       handleUpdate(config, ipfs, JSON.parse(event.data.toString('utf8')))
     } catch (error) {
-      console.error('💥 Error handling module update', error) // eslint-disable-line no-console
+      log('💥 Error handling module update', error)
     }
   })
 }
@@ -48,22 +49,22 @@ const updateRoot = async (config, ipfs, master) => {
 
   // until js can resolve IPNS names remotely, just use the raw hash
   // const result = await ipfs.name.resolve(master.root)
-  // console.info(`Importing ${result} as root`)
+  // log(`Importing ${result} as root`)
   // await ipfs.files.cp(result, config.ipfs.prefix)
 }
 
 const worker = async (config, ipfs) => {
   let timer = Date.now()
   const master = await findMaster(config)
-  console.info(`🧚‍♀️ Found master id ${master.ipfs.id} in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+  log(`🧚‍♀️ Found master id ${master.ipfs.id} in ${Date.now() - timer}ms`)
 
   timer = Date.now()
   await subscribeToTopic(config, ipfs, master)
-  console.info(`🙋 Worker subscribed to ${master.topic} in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+  log(`🙋 Worker subscribed to ${master.topic} in ${Date.now() - timer}ms`)
 
   timer = Date.now()
   await updateRoot(config, ipfs, master)
-  console.info(`🦓 Got root in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+  log(`🦓 Got root in ${Date.now() - timer}ms`)
 }
 
 module.exports = worker

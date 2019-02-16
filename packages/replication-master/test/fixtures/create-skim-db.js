@@ -3,6 +3,7 @@
 const {
   createTestServer
 } = require('ipfs-registry-mirror-common/test/fixtures/test-server')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 const createSkimDb = async (registry) => {
   const updates = []
@@ -48,7 +49,7 @@ const createSkimDb = async (registry) => {
           }) + '\n')
         }
       } catch (error) {
-        console.error(error) // eslint-disable-line no-console
+        log(error)
       }
 
       response.end()

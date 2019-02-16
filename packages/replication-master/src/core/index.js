@@ -11,6 +11,7 @@ const delay = require('promise-delay')
 const {
   status
 } = require('./workers')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 module.exports = async (options) => {
   options = config(options)
@@ -25,14 +26,14 @@ module.exports = async (options) => {
 
   // give workers a chance to connect
   const time = Date.now()
-  console.info(`⌚ Waiting for ${options.clone.delay}ms before starting to clone npm`) // eslint-disable-line no-console
+  log(`⌚ Waiting for ${options.clone.delay}ms before starting to clone npm`)
 
   await delay(options.clone.delay || 0)
 
   const workerStatus = status()
 
   if (!workerStatus.ready) {
-    console.info(`⌚ Waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`) // eslint-disable-line no-console
+    log(`⌚ Waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`)
 
     while (true) {
       await delay(options.clone.delay || 0)
@@ -41,11 +42,11 @@ module.exports = async (options) => {
         break
       }
 
-      console.info(`⌚ Still waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`) // eslint-disable-line no-console
+      log(`⌚ Still waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`)
     }
   }
 
-  console.info(`⌚ Workers took ${Date.now() - time}ms to initialise`) // eslint-disable-line no-console
+  log(`⌚ Workers took ${Date.now() - time}ms to initialise`)
 
   const feed = await clone(result.app, result.ipfs, options)
 

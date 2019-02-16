@@ -1,7 +1,9 @@
 'use strict'
 
+const log = require('../utils/log')
+
 module.exports = function (error, request, response, next) {
-  console.error(`💀 ${request.method} ${request.url} ${response.statusCode} - ${error.stack}`)
+  log(`💀 ${request.method} ${request.url} ${response.statusCode}`, error)
 
   next()
 }

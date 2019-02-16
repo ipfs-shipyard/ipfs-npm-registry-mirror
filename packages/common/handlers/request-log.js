@@ -1,5 +1,7 @@
 'use strict'
 
+const log = require('../utils/log')
+
 module.exports = function (request, response, next) {
   response.locals.start = Date.now()
 
@@ -11,7 +13,7 @@ module.exports = function (request, response, next) {
       prefix = '🎁'
     }
 
-    console.info(`${prefix} ${request.method} ${request.url} ${response.statusCode} ${Date.now() - response.locals.start}ms`)
+    log(`${prefix} ${request.method} ${request.url} ${response.statusCode} ${Date.now() - response.locals.start}ms`)
   })
 
   next()

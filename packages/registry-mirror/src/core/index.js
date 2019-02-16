@@ -10,6 +10,7 @@ const manifest = require('./manifest')
 const root = require('./root')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const findExternalPort = require('./find-external-port')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 module.exports = async (options) => {
   options = config(options)
@@ -56,8 +57,8 @@ module.exports = async (options) => {
 
   let url = getExternalUrl(options)
 
-  console.info(`🔧 Please either update your npm config with 'npm config set registry ${url}'`) // eslint-disable-line no-console
-  console.info(`🔧 or use the '--registry' flag, eg: 'npm install --registry=${url}'`) // eslint-disable-line no-console
+  log(`🔧 Please either update your npm config with 'npm config set registry ${url}'`)
+  log(`🔧 or use the '--registry' flag, eg: 'npm install --registry=${url}'`)
 
   return result
 }

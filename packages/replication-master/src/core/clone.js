@@ -1,16 +1,17 @@
 'use strict'
 
 const follow = require('@achingbrain/follow-registry')
-const log = require('debug')('ipfs:registry-mirror:clone')
+const debug = require('debug')('ipfs:registry-mirror:clone')
 const replaceTarballUrls = require('ipfs-registry-mirror-common/utils/replace-tarball-urls')
 const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const saveTarballs = require('./save-tarballs')
 const sequenceFile = require('./sequence-file')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 let processed = []
 
 module.exports = async (emitter, ipfs, options) => {
-  console.info(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`) // eslint-disable-line no-console
+  log(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`)
 
   return new Promise((resolve) => {
     follow(Object.assign({}, options.follow, {
@@ -19,7 +20,7 @@ module.exports = async (emitter, ipfs, options) => {
           return callback() // Bail, something is wrong with this change
         }
 
-        console.info(`🎉 Updated version of ${data.json.name}`) // eslint-disable-line no-console
+        log(`🎉 Updated version of ${data.json.name}`)
         const updateStart = Date.now()
 
         const manifest = replaceTarballUrls(options, data.json)
@@ -29,15 +30,15 @@ module.exports = async (emitter, ipfs, options) => {
         let timer
 
         try {
-          console.info(`📃 Reading ${data.json.name} cached manifest from ${mfsPath}`) // eslint-disable-line no-console
+          log(`📃 Reading ${data.json.name} cached manifest from ${mfsPath}`)
           timer = Date.now()
           mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
-          console.info(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+          log(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)
         } catch (error) {
           if (error.message.includes('does not exist')) {
-            log(`${mfsPath} not in MFS`)
+            debug(`${mfsPath} not in MFS`)
           } else {
-            log(`Could not read ${mfsPath}`, error)
+            debug(`Could not read ${mfsPath}`, error)
           }
         }
 
@@ -49,10 +50,10 @@ module.exports = async (emitter, ipfs, options) => {
         try {
           timer = Date.now()
           await saveTarballs(manifest, ipfs, options)
-          console.info(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+          log(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`)
           timer = Date.now()
           await saveManifest(manifest, ipfs, options)
-          console.info(`💾 Saved ${data.json.name} manifest in ${Date.now() - timer}ms`) // eslint-disable-line no-console
+          log(`💾 Saved ${data.json.name} manifest in ${Date.now() - timer}ms`)
 
           processed.push(Date.now())
           const oneHourAgo = Date.now() - 3600000
@@ -61,13 +62,13 @@ module.exports = async (emitter, ipfs, options) => {
             return time > oneHourAgo
           })
 
-          console.info(`🦕 [${data.seq}] processed ${manifest.name} in ${Date.now() - updateStart}ms, ${(processed.length / 3600).toFixed(3)} modules/s`) // eslint-disable-line no-console
+          log(`🦕 [${data.seq}] processed ${manifest.name} in ${Date.now() - updateStart}ms, ${(processed.length / 3600).toFixed(3)} modules/s`)
 
           emitter.emit('processed', manifest)
           emitter.emit('seq', data.seq)
         } catch (error) {
-          log(error)
-          console.error(`💥 [${data.seq}] error processing ${manifest.name} - ${error}`) // eslint-disable-line no-console
+          debug(error)
+          log(`💥 [${data.seq}] error processing ${manifest.name} - ${error}`)
         }
 
         callback()
@@ -75,11 +76,11 @@ module.exports = async (emitter, ipfs, options) => {
       seq: sequenceFile(options)
     }), (stream) => {
       stream.on('restart', () => {
-        console.info('🔃 Feed restarting due to inactivity') // eslint-disable-line no-console
+        log('🔃 Feed restarting due to inactivity')
       })
 
       stream.on('error', (error) => {
-        console.info(`💥 Feed error - ${error}`) // eslint-disable-line no-console
+        log(`💥 Feed error - ${error}`)
       })
 
       resolve(stream)

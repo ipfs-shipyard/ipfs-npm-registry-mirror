@@ -1,17 +1,19 @@
 'use strict'
 
+const log = require('./log')
+
 const findBaseDir = async (config, ipfs) => {
   try {
     const stats = await ipfs.files.stat(config.ipfs.prefix, {
       hash: true
     })
 
-    console.info(`🌿 Root dir ${config.ipfs.prefix} is ${stats.hash}`) // eslint-disable-line no-console
+    log(`🌿 Root dir ${config.ipfs.prefix} is ${stats.hash}`)
 
     return stats.hash
   } catch (error) {
     if (error.message.includes('does not exist')) {
-      console.info('🐺 Creating base dir') // eslint-disable-line no-console
+      log('🐺 Creating base dir')
 
       await ipfs.files.mkdir(config.ipfs.prefix, {
         parents: true

@@ -2,17 +2,19 @@
 
 'use strict'
 
+const log = require('ipfs-registry-mirror-common/utils/log')
+
 if (process.env.NODE_ENV !== 'production' || process.env.PROFILING) {
   const url = '/-/dashboard'
 
-  console.info(`🔍 Enabling profiling at ${url}`) // eslint-disable-line no-console
+  log(`🔍 Enabling profiling at ${url}`)
 
   try {
     require('@achingbrain/appmetrics-dash').attach({
       url
     })
   } catch (error) {
-    console.error(`💥 Enabling profiling failed`, error) // eslint-disable-line no-console
+    log(`💥 Enabling profiling failed`, error)
   }
 }
 

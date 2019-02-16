@@ -1,14 +1,15 @@
 'use strict'
 
 const S3 = require('aws-sdk/clients/s3')
+const log = require('ipfs-registry-mirror-common/utils/log')
 
 module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAccessKey } }, follow: { seqFile } }) => {
   if (store !== 's3') {
-    console.info('📁 Using fs sequence file') // eslint-disable-line no-console
+    log('📁 Using fs sequence file')
     return undefined
   }
 
-  console.info('☁️  Using s3 sequence file') // eslint-disable-line no-console
+  log('☁️  Using s3 sequence file')
 
   const s3 = new S3({
     params: {
@@ -25,7 +26,7 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
         Key: seqFile
       }, (err, data) => {
         if (err) {
-          console.error(`💥 Could not load seq file from ${seqFile} - ${err}`) // eslint-disable-line no-console
+          log(`💥 Could not load seq file from ${seqFile} - ${err}`)
           return callback(0) // eslint-disable-line standard/no-callback-literal
         }
 

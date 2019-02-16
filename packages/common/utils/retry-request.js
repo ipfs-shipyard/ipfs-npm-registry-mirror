@@ -5,6 +5,7 @@ const request = require('request')
 const {
   PassThrough
 } = require('stream')
+const log = require('./log')
 
 const makeRequest = (config) => {
   if (config.json) {
@@ -39,7 +40,7 @@ const retryRequest = (config, attempt = 1) => {
     .catch(error => {
       const method = (config.method || 'GET').toUpperCase()
 
-      console.info(`🚨 Request to ${method} ${config.uri} failed on attempt ${attempt} - ${error}`)
+      log(`🚨 Request to ${method} ${config.uri} failed on attempt ${attempt} - ${error}`)
 
       if (attempt > maxAttempts) {
         return Promise.reject(new Error(`Gave up requesting ${method} ${config.uri} after ${attempt} attempts`))
