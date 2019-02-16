@@ -68,7 +68,7 @@ module.exports = async (emitter, ipfs, options) => {
           emitter.emit('seq', data.seq)
         } catch (error) {
           debug(error)
-          log(`💥 [${data.seq}] error processing ${manifest.name} - ${error}`)
+          log(`💥 [${data.seq}] error processing ${manifest.name}`, error)
         }
 
         callback()
@@ -80,7 +80,7 @@ module.exports = async (emitter, ipfs, options) => {
       })
 
       stream.on('error', (error) => {
-        log(`💥 Feed error - ${error}`)
+        log(`💥 Feed error`, error)
       })
 
       resolve(stream)

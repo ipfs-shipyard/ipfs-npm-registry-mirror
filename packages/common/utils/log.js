@@ -14,6 +14,8 @@ module.exports = (message, error) => {
 
   if (error) {
     console.error(timestamp, message, error) // eslint-disable-line no-console
+
+    return
   }
 
   console.info(timestamp, message) // eslint-disable-line no-console

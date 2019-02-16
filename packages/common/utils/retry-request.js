@@ -40,7 +40,7 @@ const retryRequest = (config, attempt = 1) => {
     .catch(error => {
       const method = (config.method || 'GET').toUpperCase()
 
-      log(`🚨 Request to ${method} ${config.uri} failed on attempt ${attempt} - ${error}`)
+      log(`🚨 Request to ${method} ${config.uri} failed on attempt ${attempt}:`, error.message)
 
       if (attempt > maxAttempts) {
         return Promise.reject(new Error(`Gave up requesting ${method} ${config.uri} after ${attempt} attempts`))

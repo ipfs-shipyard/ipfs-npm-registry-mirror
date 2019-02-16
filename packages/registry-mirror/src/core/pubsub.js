@@ -19,12 +19,12 @@ const handleUpdate = async (config, ipfs, event) => {
     return
   }
 
-  log('🦄 Incoming update for', event.manifest.name)
+  log(`🦄 Incoming update for ${event.manifest.name}`)
 
   try {
     await saveManifest(event.manifest, ipfs, config)
   } catch (error) {
-    log(`💥 Could not update ${event.manifest.name} - ${error}`)
+    log(`💥 Could not update ${event.manifest.name}`, error)
   }
 }
 
