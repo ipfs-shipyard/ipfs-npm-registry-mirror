@@ -9,7 +9,8 @@ module.exports = (message, error) => {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    timeZoneName: 'short'
+    timeZoneName: 'short',
+    hour12: false
   })
 
   if (error) {
