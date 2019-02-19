@@ -29,7 +29,7 @@ const findInfo = async (config, ipfs, root, topic, seq) => {
       seq,
       ipfs: id,
       peers: peers.map(peer => peer.id.toB58String()),
-      topicPeers: topicPeers.map(peer => peer.id.toB58String()),
+      topicPeers,
       topic,
       // until js can resolve IPNS names remotely, just use the raw hash
       root: `/ipfs/${await findBaseDir(config, ipfs)}`
