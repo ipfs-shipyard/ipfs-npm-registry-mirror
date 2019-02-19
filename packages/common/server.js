@@ -5,7 +5,8 @@ const once = require('once')
 const {
   errorLog,
   favicon,
-  requestLog
+  requestLog,
+  cors
 } = require('./handlers')
 const prometheus = require('express-prom-bundle')
 const promisify = require('util').promisify
@@ -27,6 +28,8 @@ module.exports = async (config, handlers = async () => {}) => {
 
   app.use(metrics)
   app.use('/-/metrics', metrics.metricsMiddleware)
+
+  app.use(cors)
 
   app.get('/favicon.ico', favicon(config, ipfs, app))
   app.get('/favicon.png', favicon(config, ipfs, app))
