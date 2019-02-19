@@ -29,6 +29,8 @@ const handleUpdate = async (config, ipfs, event) => {
 }
 
 const subscribeToTopic = async (config, ipfs, master) => {
+  config.pubsub.topic = master.topic
+
   await ipfs.pubsub.subscribe(master.topic, (event) => {
     if (event.from !== master.ipfs.id) {
       return

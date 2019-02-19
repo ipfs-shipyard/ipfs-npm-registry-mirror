@@ -10,10 +10,12 @@ const findInfo = async (config, ipfs, root, topic, seq) => {
   if (!lastUpdate || lastUpdate < (Date.now() - 30000)) {
     const [
       id,
-      peers
+      peers,
+      topicPeers
     ] = await Promise.all([
       ipfs.id(),
-      ipfs.swarm.addrs()
+      ipfs.swarm.addrs(),
+      ipfs.pubsub.peers(topic)
     ])
 
     id.addresses = [
@@ -27,6 +29,7 @@ const findInfo = async (config, ipfs, root, topic, seq) => {
       seq,
       ipfs: id,
       peers: peers.map(peer => peer.id.toB58String()),
+      topicPeers: topicPeers.map(peer => peer.id.toB58String()),
       topic,
       // until js can resolve IPNS names remotely, just use the raw hash
       root: `/ipfs/${await findBaseDir(config, ipfs)}`
