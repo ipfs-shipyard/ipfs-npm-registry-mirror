@@ -3,5 +3,6 @@
 module.exports = {
   errorLog: require('./error-log'),
   requestLog: require('./request-log'),
-  favicon: require('./favicon')
+  favicon: require('./favicon'),
+  cors: require('./cors')
 }
