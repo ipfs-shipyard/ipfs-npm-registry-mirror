@@ -47,6 +47,9 @@ const master = async (config, ipfs, emitter) => {
   })
 
   try {
+    // so we don't lose connections to the mirrors
+    await ipfs.pubsub.subscribe(topic, () => {})
+
     const root = await publishIpnsName(config, ipfs)
 
     return {
