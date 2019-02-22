@@ -20,21 +20,22 @@ const handleUpdate = async (config, ipfs, event) => {
   }
 
   log(`🦄 Incoming update for ${event.module}`)
+  const manifestPath = `${config.ipfs.prefix}/${event.module}`
 
   try {
-    const stats = await ipfs.files.stat(`${config.ipfs.prefix}/${event.module}`)
+    const stats = await ipfs.files.stat(manifestPath)
 
     if (stats) {
-      log(`🐴 Removing old ${config.ipfs.prefix}/${event.module}`)
-      await ipfs.files.rm(`${config.ipfs.prefix}/${event.module}`)
+      log(`🐴 Removing old ${manifestPath}`)
+      await ipfs.files.rm(manifestPath)
     }
-  } catch (_) {
-    // ignore error
+  } catch (error) {
+    log(`💥 Could not remove old version of ${event.module}`, error)
   }
 
   try {
-    log(`🐎 Copying /ipfs/${event.cid} to ${config.ipfs.prefix}/${event.module}`)
-    await ipfs.files.cp(`/ipfs/${new CID(event.cid).toV0().toBaseEncodedString()}`, `${config.ipfs.prefix}/${event.module}`)
+    log(`🐎 Copying /ipfs/${event.cid} to ${manifestPath}`)
+    await ipfs.files.cp(`/ipfs/${new CID(event.cid).toV0().toBaseEncodedString()}`, manifestPath)
   } catch (error) {
     log(`💥 Could not update ${event.module}`, error)
   }
