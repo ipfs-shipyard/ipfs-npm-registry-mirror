@@ -3,6 +3,7 @@
 const hat = require('hat')
 const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const CID = require('cids')
 
 const topic = `ipfs-registry-pubsub-${hat()}`
 let lastBaseDir
@@ -23,9 +24,12 @@ const publishIpnsName = async (config, ipfs) => {
 }
 
 const publishUpdate = async (config, ipfs, pkg) => {
+  const stats = await ipfs.files.stat(`${config.ipfs.prefix}/${pkg.name}`)
+
   await ipfs.pubsub.publish(topic, Buffer.from(JSON.stringify({
     type: 'update',
-    manifest: pkg
+    module: pkg.name,
+    cid: new CID(stats.hash).toV1().toBaseEncodedString('base32')
   })))
 
   log(`📰 Broadcast update of ${pkg.name} module`)
@@ -47,9 +51,6 @@ const master = async (config, ipfs, emitter) => {
   })
 
   try {
-    // so we don't lose connections to the mirrors
-    await ipfs.pubsub.subscribe(topic, () => {})
-
     const root = await publishIpnsName(config, ipfs)
 
     return {

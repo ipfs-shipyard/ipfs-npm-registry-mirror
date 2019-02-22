@@ -13,7 +13,7 @@ const findBaseDir = async (config, ipfs) => {
     return stats.hash
   } catch (error) {
     if (error.message.includes('does not exist')) {
-      log('🐺 Creating base dir')
+      log(`🐺 Creating base dir ${config.ipfs.prefix}`)
 
       await ipfs.files.mkdir(config.ipfs.prefix, {
         parents: true

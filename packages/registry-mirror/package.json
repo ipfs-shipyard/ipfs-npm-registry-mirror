@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
+    "cids": "~0.5.7",
     "debug": "^4.0.1",
     "dnscache": "^1.0.1",
     "express-http-proxy": "^1.4.0",

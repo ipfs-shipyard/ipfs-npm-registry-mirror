@@ -1,9 +1,9 @@
 'use strict'
 
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
-const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const CID = require('cids')
 
 const findMaster = async (config) => {
   return request(Object.assign({}, config.request, {
@@ -19,12 +19,24 @@ const handleUpdate = async (config, ipfs, event) => {
     return
   }
 
-  log(`🦄 Incoming update for ${event.manifest.name}`)
+  log(`🦄 Incoming update for ${event.module}`)
 
   try {
-    await saveManifest(event.manifest, ipfs, config)
+    const stats = await ipfs.files.stat(`${config.ipfs.prefix}/${event.module}`)
+
+    if (stats) {
+      log(`🐴 Removing old ${config.ipfs.prefix}/${event.module}`)
+      await ipfs.files.rm(`${config.ipfs.prefix}/${event.module}`)
+    }
+  } catch (_) {
+    // ignore error
+  }
+
+  try {
+    log(`🐎 Copying /ipfs/${event.cid} to ${config.ipfs.prefix}/${event.module}`)
+    await ipfs.files.cp(`/ipfs/${new CID(event.cid).toV0().toBaseEncodedString()}`, `${config.ipfs.prefix}/${event.module}`)
   } catch (error) {
-    log(`💥 Could not update ${event.manifest.name}`, error)
+    log(`💥 Could not update ${event.module}`, error)
   }
 }
 

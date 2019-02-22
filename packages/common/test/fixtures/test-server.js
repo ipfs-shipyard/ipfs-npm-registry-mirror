@@ -1,6 +1,7 @@
 'use strict'
 
 const http = require('http')
+const IPFSFactory = require('ipfsd-ctl').create()
 
 let testServers = []
 
@@ -34,11 +35,21 @@ module.exports = {
 
         testServers.push(server)
 
-        if (typeof resources === 'function') {
-          resources = resources(server)
-        }
+        IPFSFactory.spawn({
+          args: ['--enable-pubsub-experiment']
+        }, async (err, ipfsd) => {
+          if (err) {
+            return reject(error)
+          }
 
-        resolve(server)
+          server.ipfs = ipfsd.api
+
+          if (typeof resources === 'function') {
+            resources = await resources(server)
+          }
+
+          resolve(server)
+        })
       })
     })
   },
@@ -50,6 +61,7 @@ module.exports = {
     return Promise.all(
       servers.map((server) => {
         return new Promise((resolve) => {
+          server.ipfs.stop()
           server.close(resolve)
         })
       })

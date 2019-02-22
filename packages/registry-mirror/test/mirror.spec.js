@@ -19,10 +19,12 @@ const path = require('path')
 const os = require('os')
 const hat = require('hat')
 const delay = require('promise-delay')
+const CID = require('cids')
 
 describe('mirror', function () {
   this.timeout(120000)
 
+  let replicationMaster
   let baseDir
   let startMirror
   let mirror
@@ -55,10 +57,14 @@ describe('mirror', function () {
     startMirror = mock.reRequire('../src/core')
 
     const registryServer = await createTestServer(upstreamModules)
-    const replicationMaster = await createReplicationMaster()
+    replicationMaster = await createReplicationMaster()
     config = serverConfig(registryServer, replicationMaster)
 
     mirror = await startMirror(config)
+
+    // make sure the mirror is connected to the master
+    const master = await replicationMaster.ipfs.id()
+    await mirror.app.locals.ipfs.swarm.connect(master.addresses[0])
 
     config.httpPort = mirror.server.address().port
 
@@ -375,5 +381,48 @@ describe('mirror', function () {
     const updated = JSON.parse(await mirror.app.locals.ipfs.files.read(`${baseDir}/${moduleName}`))
 
     expect(updated.versions['1.0.0'].dist.cid).to.not.be.ok()
+  })
+
+  it('should process an update recieved over pubsub', async () => {
+    const moduleName = `updated-module-name-${hat()}`
+    const manifest = JSON.stringify({
+      _rev: '12345',
+      name: moduleName,
+      versions: {
+        '1.0.0': {
+          dist: {
+            tarball: `${config.registry}/-/foo-1.0.0.tgz`,
+            shasum: '123',
+            cid: '456'
+          }
+        }
+      }
+    })
+
+    try {
+      await request({
+        uri: `${mirrorUrl}/${moduleName}`
+      })
+    } catch (err) {
+      expect(err.message).to.include(`${moduleName} not found`)
+    }
+
+    const res = await replicationMaster.ipfs.add(Buffer.from(manifest))
+
+    await replicationMaster.ipfs.pubsub.publish(replicationMaster.config.pubsub.topic, Buffer.from(
+      JSON.stringify({
+        type: 'update',
+        module: moduleName,
+        cid: new CID(res[0].hash).toV1().toBaseEncodedString('base32')
+      })
+    ))
+
+    await delay(5000)
+
+    const packument = await request({
+      uri: `${mirrorUrl}/${moduleName}`
+    })
+
+    expect(packument).to.deep.equal(manifest)
   })
 })
