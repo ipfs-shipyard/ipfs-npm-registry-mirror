@@ -51,9 +51,8 @@ module.exports = async (emitter, ipfs, options) => {
           timer = Date.now()
           await saveTarballs(manifest, ipfs, options)
           log(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`)
-          timer = Date.now()
+
           await saveManifest(manifest, ipfs, options)
-          log(`💾 Saved ${data.json.name} manifest in ${Date.now() - timer}ms`)
 
           processed.push(Date.now())
           const oneHourAgo = Date.now() - 3600000

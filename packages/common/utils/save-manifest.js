@@ -1,6 +1,6 @@
 'use strict'
 
-const log = require('debug')('ipfs:registry-mirror:utils:save-manifest')
+const log = require('./log')
 
 const saveManifest = async (pkg, ipfs, config) => {
   if (!pkg.name || pkg.error) {
@@ -9,9 +9,8 @@ const saveManifest = async (pkg, ipfs, config) => {
     throw error
   }
 
+  const timer = Date.now()
   const file = `${config.ipfs.prefix}/${pkg.name}`
-
-  log(`Writing json for ${pkg.name} to ${file}`)
 
   await ipfs.files.write(file, Buffer.from(JSON.stringify(pkg)), {
     create: true,
@@ -20,7 +19,7 @@ const saveManifest = async (pkg, ipfs, config) => {
     flush: config.ipfs.flush
   })
 
-  log(`Wrote manifest for ${pkg.name} to ${file}`)
+  log(`💾 Saved ${pkg.name} manifest to ${file} in ${Date.now() - timer}ms`)
 }
 
 module.exports = saveManifest
