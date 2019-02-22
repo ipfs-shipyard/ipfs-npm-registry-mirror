@@ -13,15 +13,14 @@ const saveManifest = async (pkg, ipfs, config) => {
 
   log(`Writing json for ${pkg.name} to ${file}`)
 
-  return ipfs.files.write(file, Buffer.from(JSON.stringify(pkg)), {
+  await ipfs.files.write(file, Buffer.from(JSON.stringify(pkg)), {
     create: true,
     truncate: true,
     parents: true,
     flush: config.ipfs.flush
   })
-    .then(() => {
-      log(`Wrote manifest for ${pkg.name} to ${file}`)
-    })
+
+  log(`Wrote manifest for ${pkg.name} to ${file}`)
 }
 
 module.exports = saveManifest

@@ -30,7 +30,9 @@ const handleUpdate = async (config, ipfs, event) => {
       await ipfs.files.rm(manifestPath)
     }
   } catch (error) {
-    log(`💥 Could not remove old version of ${event.module}`, error)
+    if (!error.message.includes('does not exist')) {
+      log(`💥 Could not remove old version of ${event.module}`, error)
+    }
   }
 
   try {
