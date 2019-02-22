@@ -75,6 +75,8 @@ const updateCid = async (config, ipfs, packageName, versionNumber, cid, localOnl
     if (manifest.versions[versionNumber].dist.cid === cid) {
       return
     }
+
+    log(`Manifest version cid ${manifest.versions[versionNumber].dist.cid} did not equal ${cid}`)
   }
 }
 
