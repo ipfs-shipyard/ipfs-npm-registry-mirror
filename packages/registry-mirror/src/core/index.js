@@ -23,6 +23,7 @@ module.exports = async (options) => {
   }))
 
   options.ipfs.s3.path = `${options.ipfs.s3.path}-${worker.index}`
+  options.ipfs.fs.repo = `${options.ipfs.fs.repo}-${worker.index}`
   options.ipfs.port = 10000 + worker.index
   options.external.ipfsPort = await findExternalPort(options)
 

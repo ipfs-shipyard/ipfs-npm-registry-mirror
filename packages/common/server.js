@@ -16,6 +16,7 @@ const metrics = prometheus({
   autoregister: false
 })
 const s3Repo = require('./utils/s3-repo')
+const fsRepo = require('./utils/fs-repo')
 const log = require('./utils/log')
 
 module.exports = async (config, handlers = async () => {}) => {
@@ -87,20 +88,11 @@ const getAnIPFS = promisify((config, callback) => {
   }
 
   if (config.ipfs.store === 's3') {
-    log('☁️  Using s3 repo')
-    config.ipfs.repo = s3Repo({
-      region: config.ipfs.s3.region,
-      path: config.ipfs.s3.path,
-      bucket: config.ipfs.s3.bucket,
-      accessKeyId: config.ipfs.s3.accessKeyId,
-      secretAccessKey: config.ipfs.s3.secretAccessKey,
-      createIfMissing: config.ipfs.s3.createIfMissing
-    })
+    config.ipfs.repo = s3Repo(config.ipfs.s3)
   }
 
   if (config.ipfs.store === 'fs') {
-    log('📁 Using fs repo')
-    config.ipfs.repo = config.ipfs.fs.repo
+    config.ipfs.repo = fsRepo(config.ipfs.fs)
   }
 
   log(`🏁 Starting an IPFS instance`)
