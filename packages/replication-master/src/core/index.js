@@ -33,7 +33,7 @@ module.exports = async (options) => {
   const workerStatus = status()
 
   if (!workerStatus.ready) {
-    log(`⌚ Waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`)
+    log(`⌚ Waiting for ${workerStatus.workers.length - workerStatus.initialised} of ${workerStatus.workers.length} workers to be ready before starting to clone npm`)
 
     while (true) {
       await delay(options.clone.delay || 0)
@@ -42,7 +42,7 @@ module.exports = async (options) => {
         break
       }
 
-      log(`⌚ Still waiting for ${workerStatus.workers - workerStatus.initialised} of ${workerStatus.workers} workers to be ready before starting to clone npm`)
+      log(`⌚ Still waiting for ${workerStatus.workers.length - workerStatus.initialised} of ${workerStatus.workers.length} workers to be ready before starting to clone npm`)
     }
   }
 

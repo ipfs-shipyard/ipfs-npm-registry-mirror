@@ -5,9 +5,15 @@ const {
 } = require('./workers')
 
 module.exports = () => {
-  return async (request, response, next) => {
+  return async (request, response) => {
+    const worker = request.query.worker
+
+    if (!worker) {
+      return response.status(400).send('Bad Request')
+    }
+
     const info = {
-      index: connect()
+      index: connect(worker)
     }
 
     response.statusCode = 200

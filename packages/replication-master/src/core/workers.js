@@ -1,6 +1,8 @@
 'use strict'
 
-let workers = 0
+const log = require('ipfs-registry-mirror-common/utils/log')
+
+let workers = []
 let initialised = 0
 
 module.exports = {
@@ -8,14 +10,20 @@ module.exports = {
     return {
       workers,
       initialised,
-      ready: workers === 0 ? true : initialised === workers
+      ready: workers.length === 0 ? true : initialised === workers.length
     }
   },
 
-  connect: () => {
-    workers++
+  connect: (worker) => {
+    let index = workers.indexOf(worker)
 
-    return workers - 1
+    if (index === -1) {
+      index = workers.push(worker) - 1
+    }
+
+    log(`👷‍♀️ Worker ${worker} assigned index ${index}`)
+
+    return index
   },
 
   online: () => {

@@ -9,7 +9,6 @@ const tarball = require('./tarball')
 const manifest = require('./manifest')
 const root = require('./root')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
-const findExternalPort = require('./find-external-port')
 const log = require('ipfs-registry-mirror-common/utils/log')
 
 module.exports = async (options) => {
@@ -17,6 +16,9 @@ module.exports = async (options) => {
 
   const worker = await request(Object.assign({}, config.request, {
     uri: `${options.pubsub.master}/-/worker`,
+    qs: {
+      worker: process.env.HOSTNAME
+    },
     json: true,
     retries: 100,
     retryDelay: 5000
@@ -25,7 +27,7 @@ module.exports = async (options) => {
   options.ipfs.s3.path = `${options.ipfs.s3.path}-${worker.index}`
   options.ipfs.fs.repo = `${options.ipfs.fs.repo}-${worker.index}`
   options.ipfs.port = 10000 + worker.index
-  options.external.ipfsPort = await findExternalPort(options)
+  options.external.ipfsPort = 10000 + worker.index
 
   const result = await server(options, async (app, ipfs) => {
     app.get('/', root(options, ipfs, app, worker))

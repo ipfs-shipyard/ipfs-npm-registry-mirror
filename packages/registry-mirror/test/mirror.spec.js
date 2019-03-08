@@ -52,8 +52,6 @@ describe('mirror', function () {
   before(async () => {
     baseDir = `/commons-registry-test-${hat()}`
 
-    mock('../src/core/find-external-port', () => 5)
-
     startMirror = mock.reRequire('../src/core')
 
     const registryServer = await createTestServer(upstreamModules)

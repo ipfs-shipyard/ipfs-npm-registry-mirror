@@ -382,15 +382,41 @@ describe('replication', function () {
   it('should increment worker ids', async () => {
     const worker1 = await request({
       uri: `${replicationMasterUrl}/-/worker`,
+      qs: {
+        worker: 'host1'
+      },
       json: true
     })
 
     const worker2 = await request({
       uri: `${replicationMasterUrl}/-/worker`,
+      qs: {
+        worker: 'host2'
+      },
       json: true
     })
 
     expect(worker1.index).to.equal(0)
     expect(worker2.index).to.equal(1)
+  })
+
+  it('should return the same worker id to the same worker', async () => {
+    const worker1 = await request({
+      uri: `${replicationMasterUrl}/-/worker`,
+      qs: {
+        worker: 'host1'
+      },
+      json: true
+    })
+
+    const worker2 = await request({
+      uri: `${replicationMasterUrl}/-/worker`,
+      qs: {
+        worker: 'host1'
+      },
+      json: true
+    })
+
+    expect(worker1.index).to.equal(worker2.index)
   })
 })

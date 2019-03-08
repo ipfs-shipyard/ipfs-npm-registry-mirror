@@ -1,7 +1,7 @@
 FROM node:10
 
 EXPOSE 8080
-EXPOSE 10000-10010
+EXPOSE 10000-10009
 
 RUN export NODE_ENV=production
 RUN npm set unsafe-perm true
