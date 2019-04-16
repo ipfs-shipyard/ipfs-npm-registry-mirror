@@ -24,7 +24,7 @@
     "debug": "^4.0.1",
     "express": "^4.16.3",
     "express-prom-bundle": "^5.0.2",
-    "ipfs": "~0.34.4",
+    "ipfs": "~0.35.0",
     "ipfs-repo": "~0.26.1",
     "once": "^1.4.0",
     "prom-client": "^11.1.2",
