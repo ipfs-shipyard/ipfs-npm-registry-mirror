@@ -19,12 +19,12 @@
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
     "aws-sdk": "^2.402.0",
-    "cids": "~0.5.5",
+    "cids": "~0.7.1",
     "datastore-s3": "~0.2.3",
     "debug": "^4.0.1",
     "express": "^4.16.3",
     "express-prom-bundle": "^5.0.2",
-    "ipfs": "~0.34.4",
+    "ipfs": "~0.36.3",
     "ipfs-repo": "~0.26.1",
     "once": "^1.4.0",
     "prom-client": "^11.1.2",
@@ -33,12 +33,12 @@
     "request-promise": "^4.2.2"
   },
   "devDependencies": {
-    "aegir": "^18.0.3",
+    "aegir": "^19.0.3",
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
     "hat": "~0.0.3",
     "ipfsd-ctl": "~0.42.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.1.4",
     "mock-require": "^3.0.2",
     "sinon": "^7.2.2"
   }

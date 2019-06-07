@@ -33,3 +33,120 @@ You can can either use the [public http mirror](https://registry.js.ipfs.io) wit
 ## Lead Maintainer
 
 [Alex Potsides](https://github.com/achingbrain)
+
+
+## Deployment
+
+Requirements:
+
+* Docker
+* docker-compose `v1.24.0-rc1` or later.
+
+```
+$ git clone https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror.git
+$ cd ipfs-npm-registry-mirror
+$ echo NODE_ENV=production > .env
+$ ./deploy.sh
+```
+
+
+```yml
+version: '2'
+
+services:
+
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    mem_limit: 1024m
+    links:
+      - replicate
+      - registry
+    ports:
+      - '80:80'
+      - '443:443'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "3"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /etc/nginx/certs
+      - ./conf/proxy.conf:/etc/nginx/proxy.conf
+    restart: 'always'
+
+  replicate:
+    build:
+      context: .
+      dockerfile: packages/replication-master/Dockerfile
+    restart: 'always'
+    env_file: .env
+    mem_limit: 4608m
+    environment:
+      - VIRTUAL_HOST=replication.rig.home
+      - VIRTUAL_PORT=8080
+      - NODE_ENV=${NODE_ENV}
+      - EXTERNAL_PROTOCOL=http
+      - EXTERNAL_HOST=rig.home
+      - EXTERNAL_PORT=80
+      - EXTERNAL_IP=192.168.1.112
+      - IPFS_STORE_TYPE=fs
+      - IPFS_REPO=/usr/local/ipfs-npm-registry-mirror/replication-master
+      - FOLLOW_SEQ_FILE=/usr/local/ipfs-npm-registry-mirror/seq.txt
+      - CLONE_DELAY=30000
+      - FOLLOW_CONCURRENCY=5
+      - REQUEST_CONCURRENCY=5
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /usr/local/ipfs-npm-registry-mirror:/usr/local/ipfs-npm-registry-mirror
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  registry:
+    build:
+      context: .
+      dockerfile: packages/registry-mirror/Dockerfile
+    restart: 'always'
+    env_file: .env
+    mem_limit: 2048m
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - VIRTUAL_HOST=rig.home
+      - VIRTUAL_PORT=8080
+      - NODE_ENV=${NODE_ENV}
+      - EXTERNAL_PROTOCOL=http
+      - EXTERNAL_HOST=rig.home
+      - EXTERNAL_PORT=80
+      - EXTERNAL_IP=192.168.1.112
+      - IPFS_STORE_TYPE=fs
+      - IPFS_REPO=/usr/local/ipfs-npm-registry-mirror/worker
+      - PUBSUB_MASTER=http://replicate:8080
+      - REQUEST_MAX_SOCKETS=20
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /usr/local/ipfs-npm-registry-mirror:/usr/local/ipfs-npm-registry-mirror
+    links:
+      - replicate
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+      - "10003:10003"
+      - "10004:10004"
+      - "10005:10005"
+      - "10006:10006"
+      - "10007:10007"
+      - "10008:10008"
+      - "10009:10009"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+```
