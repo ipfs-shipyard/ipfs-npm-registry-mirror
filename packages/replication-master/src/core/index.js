@@ -3,6 +3,7 @@
 const config = require('./config')
 const clone = require('./clone')
 const replicationMaster = require('./pubsub')
+const advertise = require('./mdns')
 const server = require('ipfs-registry-mirror-common/server')
 const root = require('./root')
 const worker = require('./worker')
@@ -15,6 +16,10 @@ const log = require('ipfs-registry-mirror-common/utils/log')
 
 module.exports = async (options) => {
   options = config(options)
+
+  if (!options.ipfs.pass) {
+    throw new Error('Please supply a keystore password with the --ipfs-pass option')
+  }
 
   const result = await server(options, async (app, ipfs) => {
     const res = await replicationMaster(options, ipfs, app)
@@ -51,9 +56,11 @@ module.exports = async (options) => {
   const feed = await clone(result.app, result.ipfs, options)
 
   const stop = result.stop
+  const advert = advertise(result.ipfs, options)
 
   result.stop = () => {
     feed.stop()
+    advert.stop()
     stop()
   }
 

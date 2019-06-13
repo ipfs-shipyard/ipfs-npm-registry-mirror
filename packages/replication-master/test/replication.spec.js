@@ -131,8 +131,7 @@ describe('replication', function () {
         try {
           expect(event.name).to.equal(module.name)
           expect(Object.keys(event.versions).length).to.equal(1)
-          expect(event.versions[module.version].dist.source).to.equal(`${config.registry}${tarball.path}`)
-          expect(event.versions[module.version].dist.tarball).to.equal(`${config.externalProtocol}://${config.externalHost}${tarball.path}`)
+          expect(event.versions[module.version].dist.tarball).to.equal(`${config.registry}${tarball.path}`)
         } catch (error) {
           return reject(error)
         }
@@ -207,8 +206,7 @@ describe('replication', function () {
           expect(sawModule1Update).to.be.true()
           expect(event.name).to.equal(module2.name)
           expect(Object.keys(event.versions).length).to.equal(1)
-          expect(event.versions[module2.version].dist.source).to.equal(`${config.registry}${tarball2.path}`)
-          expect(event.versions[module2.version].dist.tarball).to.equal(`${config.externalProtocol}://${config.externalHost}${tarball2.path}`)
+          expect(event.versions[module2.version].dist.tarball).to.equal(`${config.registry}${tarball2.path}`)
         } catch (error) {
           return reject(error)
         }
@@ -368,8 +366,7 @@ describe('replication', function () {
         try {
           expect(event.name).to.equal(module.name)
           expect(Object.keys(event.versions).length).to.equal(1)
-          expect(event.versions[module.version].dist.source).to.equal(`${config.registry}${tarball.path}`)
-          expect(event.versions[module.version].dist.tarball).to.equal(`${config.externalProtocol}://${config.externalHost}:${config.externalPort}${tarball.path}`)
+          expect(event.versions[module.version].dist.tarball).to.equal(`${config.registry}${tarball.path}`)
         } catch (error) {
           return reject(error)
         }

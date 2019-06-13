@@ -2,13 +2,54 @@
 
 const follow = require('@achingbrain/follow-registry')
 const debug = require('debug')('ipfs:registry-mirror:clone')
-const replaceTarballUrls = require('ipfs-registry-mirror-common/utils/replace-tarball-urls')
 const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const saveTarballs = require('./save-tarballs')
 const sequenceFile = require('./sequence-file')
 const log = require('ipfs-registry-mirror-common/utils/log')
 
 let processed = []
+
+const publishOrUpdateIPNSName = async (manifest, ipfs, options) => {
+  let timer = Date.now()
+  const file = `${options.ipfs.prefix}/${manifest.name}`
+  let newNameCreated = false
+
+  if (!manifest.ipns) {
+    // we need to create the ipns name (which will be stable), add it to the
+    // manifest, save it again and then immediately update the ipns name
+
+    try {
+      await ipfs.key.gen(manifest.name, {
+        type: 'rsa',
+        size: 2048
+      })
+    } catch (err) {
+      if (!err.message.includes('already exists')) {
+        throw err
+      }
+    }
+
+    newNameCreated = true
+  }
+
+  const stats = await ipfs.files.stat(file)
+
+  let result = await ipfs.name.publish(`/ipfs/${stats.hash}`, {
+    key: manifest.name
+  })
+
+  if (newNameCreated) {
+    manifest.ipns = result.name
+    manifest = await saveManifest(manifest, ipfs, options)
+
+    const stats = await ipfs.files.stat(file)
+    await ipfs.name.publish(`/ipfs/${stats.hash}`, {
+      key: manifest.name
+    })
+  }
+
+  log(`💾 Updated ${manifest.name} IPNS name ${manifest.ipns} in ${Date.now() - timer}ms`)
+}
 
 module.exports = async (emitter, ipfs, options) => {
   log(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`)
@@ -23,7 +64,7 @@ module.exports = async (emitter, ipfs, options) => {
         log(`🎉 Updated version of ${data.json.name}`)
         const updateStart = Date.now()
 
-        const manifest = replaceTarballUrls(options, data.json)
+        let manifest = data.json
         const mfsPath = `${options.ipfs.prefix}/${data.json.name}`
 
         let mfsVersion = {}
@@ -32,7 +73,7 @@ module.exports = async (emitter, ipfs, options) => {
         try {
           log(`📃 Reading ${data.json.name} cached manifest from ${mfsPath}`)
           timer = Date.now()
-          mfsVersion = JSON.parse(await ipfs.files.read(mfsPath))
+          mfsVersion = await ipfs.files.read(mfsPath)
           log(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)
         } catch (error) {
           if (error.message.includes('does not exist')) {
@@ -52,7 +93,9 @@ module.exports = async (emitter, ipfs, options) => {
           await saveTarballs(manifest, ipfs, options)
           log(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`)
 
-          await saveManifest(manifest, ipfs, options)
+          manifest = await saveManifest(manifest, ipfs, options)
+
+          await publishOrUpdateIPNSName(manifest, ipfs, options)
 
           processed.push(Date.now())
           const oneHourAgo = Date.now() - 3600000

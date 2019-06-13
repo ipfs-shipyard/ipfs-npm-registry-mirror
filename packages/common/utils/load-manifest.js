@@ -3,7 +3,6 @@
 const request = require('./retry-request')
 const debug = require('debug')('ipfs:registry-mirror:utils:load-manifest')
 const saveManifest = require('./save-manifest')
-const replaceTarballUrls = require('./replace-tarball-urls')
 const timeout = require('./timeout-promise')
 const log = require('./log')
 
@@ -19,13 +18,13 @@ const loadFromMfs = async (packageName, ipfs, options) => {
     debug(`Reading from mfs ${mfsPath}`)
     const start = Date.now()
 
-    json = await ipfs.files.read(mfsPath)
+    const stat = await ipfs.files.stat(mfsPath)
+    json = await ipfs.dag.get(stat.hash)
+    json = json.value
 
     debug(`Read from mfs ${mfsPath} in ${Date.now() - start}ms`)
-
-    json = JSON.parse(json)
   } catch (error) {
-    if (error.message.includes('does not exist')) {
+    if (error.code === 'ERR_NOT_FOUND') {
       debug(`${mfsPath} not in MFS`)
     }
 
@@ -112,7 +111,7 @@ const loadManifest = async (options, ipfs, packageName) => {
   let mfsVersion = await loadFromMfs(packageName, ipfs, options)
   let registryVersion = {}
 
-  const modified = new Date((mfsVersion.time && mfsVersion.time.modified) || 0)
+  const modified = new Date(mfsVersion.updated || 0)
   const willDownload = (Date.now() - options.registryUpdateInterval) > modified.getTime()
 
   if (willDownload) {
@@ -133,17 +132,13 @@ const loadManifest = async (options, ipfs, packageName) => {
 
   log(`🆕 New version${newVerisons.length > 1 ? 's': ''} of ${packageName} detected - ${newVerisons.join(', ')}`)
 
-  registryVersion = replaceTarballUrls(options, registryVersion)
-
   // save our existing versions so we don't re-download tarballs we already have
   Object.keys(mfsVersion.versions || {}).forEach(versionNumber => {
     registryVersion.versions[versionNumber] = mfsVersion.versions[versionNumber]
   })
 
   // store it for next time
-  await saveManifest(registryVersion, ipfs, options)
-
-  return registryVersion
+  return saveManifest(registryVersion, ipfs, options)
 }
 
 module.exports = loadManifest

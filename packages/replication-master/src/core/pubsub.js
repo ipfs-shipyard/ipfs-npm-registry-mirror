@@ -3,55 +3,51 @@
 const hat = require('hat')
 const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 const log = require('ipfs-registry-mirror-common/utils/log')
-const CID = require('cids')
 
 const topic = `ipfs-registry-pubsub-${hat()}`
 let lastBaseDir
 
-const publishIpnsName = async (config, ipfs) => {
-  const baseDir = await findBaseDir(config, ipfs)
+const publishIpnsName = async (ipfs, baseDir) => {
   let previousBaseDir = lastBaseDir
   lastBaseDir = baseDir
 
   if (baseDir !== previousBaseDir) {
     log(`🗞️  Publishing IPNS update, base dir is /ipfs/${baseDir}`)
 
-    // No point until js-ipfs can resolve remote ipns names.  also seems to cause the process to hang.
-    // await ipfs.name.publish(`/ipfs/${baseDir}
+    await ipfs.name.publish(`/ipfs/${baseDir}`)
 
     log(`📰 Published IPNS update`)
   }
 }
 
-const publishUpdate = async (config, ipfs, pkg) => {
-  const stats = await ipfs.files.stat(`${config.ipfs.prefix}/${pkg.name}`)
-
+const publishUpdate = async (ipfs, baseDir) => {
   await ipfs.pubsub.publish(topic, Buffer.from(JSON.stringify({
     type: 'update',
-    module: pkg.name,
-    cid: new CID(stats.hash).toV1().toBaseEncodedString('base32')
+    cid: baseDir
   })))
 
-  log(`📰 Broadcast update of ${pkg.name} module`)
+  log(`📰 Broadcast update of ${baseDir}`)
 }
 
 const master = async (config, ipfs, emitter) => {
-  emitter.on('processed', async (pkg) => {
+  emitter.on('processed', async () => {
+    const baseDir = await findBaseDir(config, ipfs)
+
     try {
-      await publishIpnsName(config, ipfs)
+      await publishIpnsName(ipfs, baseDir)
     } catch (error) {
       log(`💥 Error publishing IPNS name`, error)
     }
 
     try {
-      await publishUpdate(config, ipfs, pkg)
+      await publishUpdate(ipfs, baseDir)
     } catch (error) {
       log('💥 Error publishing to topic', error)
     }
   })
 
   try {
-    const root = await publishIpnsName(config, ipfs)
+    const root = await findBaseDir(config, ipfs)
 
     return {
       topic,

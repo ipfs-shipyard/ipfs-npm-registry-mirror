@@ -4,7 +4,7 @@ const debug = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const CID = require('cids')
 const crypto = require('crypto')
-const PQueue = require('p-queue')
+const { default: PQueue } = require('p-queue')
 const log = require('ipfs-registry-mirror-common/utils/log')
 
 let queue
@@ -21,11 +21,11 @@ const saveTarball = async (manifest, versionNumber, ipfs, options) => {
   }
 
   const startTime = Date.now()
-  const cid = await downloadFile(version.dist.source, version.dist.shasum, ipfs, options)
+  const cid = await downloadFile(version.dist.tarball, version.dist.shasum, ipfs, options)
 
   version.dist.cid = cid
 
-  log(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
+  log(`🏄‍♀️ Added ${version.dist.tarball} with hash ${cid} in ${Date.now() - startTime}ms`)
 }
 
 const validate = (version, versionNumber, packageName) => {
@@ -35,10 +35,6 @@ const validate = (version, versionNumber, packageName) => {
 
   if (!version.dist) {
     throw new Error(`Skipping invalid version ${versionNumber} of ${packageName} - no dist section`)
-  }
-
-  if (!version.dist.source) {
-    throw new Error(`Skipping invalid version ${versionNumber} of ${packageName} - no source`)
   }
 
   if (!version.dist.shasum) {

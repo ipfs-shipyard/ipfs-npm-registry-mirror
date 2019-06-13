@@ -23,6 +23,10 @@ require('dnscache')({ enable: true })
 const pkg = require('../../package')
 const path = require('path')
 
+require('dotenv').config({
+  path: path.join(process.env.HOME, '.ipfs-npm-registry-mirror/replication-master.env')
+})
+
 process.title = pkg.name
 
 const yargs = require('yargs')
@@ -103,6 +107,9 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to create the bucket if it is missing',
       default: false
     })
+    .option('ipfs-pass', {
+      describe: 'Used to secure operations on the keystore - must be over 20 characters long'
+    })
 
     .option('follow-skim', {
       describe: 'Which skimdb to follow',
@@ -157,6 +164,11 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     .option('request-concurrency', {
       describe: 'How many simultaneous requests to make',
       default: 5
+    })
+
+    .option('mdns-advert', {
+      describe: 'A string name to use to advertise this service over mDNS',
+      default: '_ipfs-npm._tcp'
     })
 }, require('../core'))
   .argv

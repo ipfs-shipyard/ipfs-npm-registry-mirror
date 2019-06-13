@@ -1,9 +1,7 @@
 'use strict'
 
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
-const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 const log = require('ipfs-registry-mirror-common/utils/log')
-const CID = require('cids')
 
 const findMaster = async (config) => {
   return request(Object.assign({}, config.request, {
@@ -19,25 +17,15 @@ const handleUpdate = async (config, ipfs, event) => {
     return
   }
 
-  log(`🦄 Incoming update for ${event.module}`)
-  const manifestPath = `${config.ipfs.prefix}/${event.module}`
+  log(`🦄 Incoming update`)
 
   try {
-    const stats = await ipfs.files.stat(manifestPath)
-
-    if (stats) {
-      log(`🐴 Removing old ${manifestPath}`)
-      await ipfs.files.rm(manifestPath)
-    }
-  } catch (error) {
-    if (!error.message.includes('does not exist')) {
-      log(`💥 Could not remove old version of ${event.module}`, error)
-    }
-  }
-
-  try {
+    log(`🐴 Removing old ${config.ipfs.prefix}`)
+    await ipfs.files.rm(config.ipfs.prefix, {
+      recursive: true
+    })
     log(`🐎 Copying /ipfs/${event.cid} to ${manifestPath}`)
-    await ipfs.files.cp(`/ipfs/${new CID(event.cid).toV0().toBaseEncodedString()}`, manifestPath)
+    await ipfs.files.cp(`/ipfs/${event.cid}`, config.ipfs.prefix)
   } catch (error) {
     log(`💥 Could not update ${event.module}`, error)
   }
@@ -60,14 +48,7 @@ const subscribeToTopic = async (config, ipfs, master) => {
 }
 
 const updateRoot = async (config, ipfs, master) => {
-  return findBaseDir(config, ipfs)
-
-  // return ipfs.files.cp(master.root, config.ipfs.prefix)
-
-  // until js can resolve IPNS names remotely, just use the raw hash
-  // const result = await ipfs.name.resolve(master.root)
-  // log(`Importing ${result} as root`)
-  // await ipfs.files.cp(result, config.ipfs.prefix)
+  return ipfs.files.cp(master.root, config.ipfs.prefix)
 }
 
 const worker = async (config, ipfs) => {

@@ -98,6 +98,10 @@ const getAnIPFS = promisify((config, callback) => {
   log(`🏁 Starting an IPFS instance`)
 
   const ipfs = new IPFS({
+    pass: config.ipfs.pass,
+    init: {
+      emptyRepo: true
+    },
     repo: config.ipfs.repo,
     EXPERIMENTAL: {
       pubsub: true,

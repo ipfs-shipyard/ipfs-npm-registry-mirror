@@ -25,6 +25,7 @@
     "cids": "~0.7.1",
     "debug": "^4.0.1",
     "dnscache": "^1.0.1",
+    "dotenv": "^8.0.0",
     "express-http-proxy": "^1.4.0",
     "ipfs-registry-mirror-common": "^1.0.13",
     "promise-delay": "^2.1.0",

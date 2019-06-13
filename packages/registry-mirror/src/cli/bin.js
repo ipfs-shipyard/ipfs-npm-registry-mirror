@@ -23,6 +23,10 @@ require('dnscache')({ enable: true })
 const pkg = require('../../package')
 const path = require('path')
 
+require('dotenv').config({
+  path: path.join(process.env.HOME, '.ipfs-npm-registry-mirror/registry-mirror.env')
+})
+
 process.title = pkg.name
 
 const yargs = require('yargs')

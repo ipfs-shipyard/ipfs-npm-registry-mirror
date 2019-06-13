@@ -28,9 +28,9 @@ const saveTarball = (config, packageName, versionNumber, ipfs, localOnly, done =
       }
 
       const startTime = Date.now()
-      const cid = await downloadFile(config, ipfs, version.dist.source, version.dist.shasum, outputStream)
+      const cid = await downloadFile(config, ipfs, version.dist.tarball, version.dist.shasum, outputStream)
 
-      log(`🏄‍♀️ Added ${version.dist.source} with hash ${cid} in ${Date.now() - startTime}ms`)
+      log(`🏄‍♀️ Added ${version.dist.tarball} with hash ${cid} in ${Date.now() - startTime}ms`)
 
       await updateCid(config, ipfs, packageName, versionNumber, cid, localOnly)
 
@@ -52,10 +52,6 @@ const validate = (version, versionNumber, packageName) => {
 
   if (!version.dist) {
     throw new Error(`Skipping invalid version ${versionNumber} of ${packageName} - no dist section`)
-  }
-
-  if (!version.dist.source) {
-    throw new Error(`Skipping invalid version ${versionNumber} of ${packageName} - no source`)
   }
 
   if (!version.dist.shasum) {

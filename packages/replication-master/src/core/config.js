@@ -23,6 +23,8 @@ module.exports = (overrides = {}) => {
     },
 
     ipfs: {
+      pass: option(process.env.IPFS_PASS, overrides.ipfsPass),
+      node: option(process.env.IPFS_NODE, overrides.ipfsNode),
       port: option(process.env.IPFS_SWARM_PORT, overrides.ipfsPort),
       prefix: option(process.env.IPFS_MFS_PREFIX, overrides.ipfsMfsPrefix),
       flush: option(toBoolean(process.env.IPFS_FLUSH), overrides.ipfsFlush),
@@ -62,6 +64,11 @@ module.exports = (overrides = {}) => {
       timeout: option(process.env.REQUEST_TIMEOUT, overrides.requestTimeout),
       forever: option(toBoolean(process.env.REQUEST_KEEP_ALIVE), overrides.requestKeepAlive),
       concurrency: parseInt(option(process.env.REQUEST_CONCURRENCY, overrides.requestConcurrency), 10)
+    },
+
+    mdns: {
+      enabled: Boolean(process.env.MDNS_NAME || overrides.mdnsAdvert),
+      name: option(process.env.MDNS_NAME, overrides.mdnsAdvert)
     }
   }
 }
