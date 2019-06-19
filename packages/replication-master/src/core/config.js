@@ -55,7 +55,8 @@ module.exports = (overrides = {}) => {
 
     clone: {
       delay: option(Number(process.env.CLONE_DELAY), overrides.cloneDelay),
-      pin: option(Number(process.env.CLONE_PIN), overrides.clonePin)
+      pin: option(Number(process.env.CLONE_PIN), overrides.clonePin),
+      publish: option(process.env.CLONE_PUBLISH, overrides.clonePublish)
     },
 
     request: {

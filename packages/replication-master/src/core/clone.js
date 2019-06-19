@@ -95,7 +95,9 @@ module.exports = async (emitter, ipfs, options) => {
 
           manifest = await saveManifest(manifest, ipfs, options)
 
-          await publishOrUpdateIPNSName(manifest, ipfs, options)
+          if (!options.clone.publish) {
+            await publishOrUpdateIPNSName(manifest, ipfs, options)
+          }
 
           processed.push(Date.now())
           const oneHourAgo = Date.now() - 3600000

@@ -144,6 +144,10 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to pin cloned modules',
       default: false
     })
+    .option('clone-publish', {
+      describe: 'Whether to publish IPNS names for cloned modules',
+      default: false
+    })
 
     .option('request-retries', {
       describe: 'How many times to retry when downloading manifests and tarballs from the registry',
