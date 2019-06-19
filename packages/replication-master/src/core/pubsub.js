@@ -33,10 +33,12 @@ const master = async (config, ipfs, emitter) => {
   emitter.on('processed', async () => {
     const baseDir = await findBaseDir(config, ipfs)
 
-    try {
-      await publishIpnsName(ipfs, baseDir)
-    } catch (error) {
-      log(`💥 Error publishing IPNS name`, error)
+    if (config.clone.publish) {
+      try {
+        await publishIpnsName(ipfs, baseDir)
+      } catch (error) {
+        log(`💥 Error publishing IPNS name`, error)
+      }
     }
 
     try {
