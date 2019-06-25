@@ -1,6 +1,6 @@
 {
   "name": "ipfs-registry-mirror-common",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Shared libraries & utilities from ipfs-npm",
   "main": "./index.js",
   "scripts": {
