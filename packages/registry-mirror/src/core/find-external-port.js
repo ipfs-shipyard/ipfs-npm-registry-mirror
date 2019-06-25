@@ -20,8 +20,8 @@ module.exports = async (options) => {
   try {
     return docker.NetworkSettings.Ports[`${options.ipfs.port}/tcp`][0].HostPort
   } catch (err) {
-    console.error('Could not find options.ipfs.port', options.ipfs.port, 'in')
-    console.info(JSON.stringify(docker.NetworkSettings, null, 2))
+    console.error('Could not find options.ipfs.port', options.ipfs.port, 'in') // eslint-disable-line no-console
+    console.info(JSON.stringify(docker.NetworkSettings, null, 2)) // eslint-disable-line no-console
 
     throw err
   }

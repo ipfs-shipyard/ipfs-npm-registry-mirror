@@ -7,7 +7,7 @@ const expect = require('chai')
 const errorMessage = require('../utils/error-message')
 
 describe('error-message', () => {
-  it('should return an error message', async () => {
+  it('should return an error message', () => {
     const message = 'hello'
 
     expect(errorMessage(message)).to.contain(message)

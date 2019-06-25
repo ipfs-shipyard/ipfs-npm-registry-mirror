@@ -53,7 +53,7 @@ module.exports = async (options) => {
 
   log(`⌚ Workers took ${Date.now() - time}ms to initialise`)
 
-  const feed = await clone(result.app, result.ipfs, options)
+  const feed = await clone(result.app, options)
 
   const stop = result.stop
   const advert = advertise(result.ipfs, options)

@@ -42,7 +42,7 @@ const validate = (version, versionNumber, packageName) => {
   }
 }
 
-const downloadFile = async (url, shasum, ipfs, options) => {
+const downloadFile = (url, shasum, ipfs, options) => {
   log(`⬇️  Downloading ${url}`)
   const start = Date.now()
 
@@ -83,7 +83,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
     })
 }
 
-const saveTarballs = async (pkg, ipfs, options) => {
+const saveTarballs = (pkg, ipfs, options) => {
   if (!queue) {
     queue = new PQueue({ concurrency: options.request.concurrency })
   }

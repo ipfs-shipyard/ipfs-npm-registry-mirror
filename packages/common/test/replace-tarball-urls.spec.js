@@ -8,7 +8,7 @@ const hat = require('hat')
 const replaceTarballUrls = require('../utils/replace-tarball-urls')
 
 describe('replace-tarball-urls', () => {
-  it('should replace tarball urls', async () => {
+  it('should replace tarball urls', () => {
     const config = {
       external: {
         protocol: 'http',

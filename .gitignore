@@ -34,3 +34,4 @@ docs
 .env
 seq.txt
 *.heapsnapshot
+.vscode

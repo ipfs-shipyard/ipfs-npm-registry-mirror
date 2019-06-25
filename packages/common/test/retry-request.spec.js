@@ -16,7 +16,7 @@ describe('retry-request', () => {
   let request
   let requestPromise
 
-  beforeEach(async () => {
+  beforeEach(() => {
     requestPromise = sinon.stub()
     request = sinon.stub()
 
@@ -26,7 +26,7 @@ describe('retry-request', () => {
     retryRequest = mock.reRequire('../utils/retry-request')
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     mock.stopAll()
   })
 

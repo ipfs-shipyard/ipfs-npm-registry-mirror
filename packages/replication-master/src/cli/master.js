@@ -1,10 +1,9 @@
-#! /usr/bin/env node
-
 'use strict'
 
 const log = require('ipfs-registry-mirror-common/utils/log')
+const os = require('os')
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' || process.env.PROFILING) {
   const url = '/-/dashboard'
 
   log(`🔍 Enabling profiling at ${url}`)
@@ -24,7 +23,7 @@ const pkg = require('../../package')
 const path = require('path')
 
 require('dotenv').config({
-  path: path.join(process.env.HOME, '.ipfs-npm-registry-mirror/registry-mirror.env')
+  path: path.join(process.env.HOME, '.ipfs-npm-registry-mirror/replication-master.env')
 })
 
 process.title = pkg.name
@@ -41,10 +40,6 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Only request the manifest for a given module every so many ms',
       default: 60000
     })
-    .option('registry-upload-size-limit', {
-      describe: 'How large a file upload to allow when proxying for the registry',
-      default: '1024MB'
-    })
 
     .option('http-protocol', {
       describe: 'Which protocol to use with the server',
@@ -59,6 +54,9 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       default: 8080
     })
 
+    .option('external-ip', {
+      describe: 'Which IP address to use when reaching this mirror'
+    })
     .option('external-protocol', {
       describe: 'Which protocol to use when reaching this mirror'
     })
@@ -112,14 +110,45 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to create the bucket if it is missing',
       default: false
     })
-
-    .option('pubsub-master', {
-      describe: 'The url of the pubsub replication master',
-      default: 'https://replication.registry.js.ipfs.io'
+    .option('ipfs-pass', {
+      describe: 'Used to secure operations on the keystore - must be over 20 characters long'
     })
 
+    .option('follow-skim', {
+      describe: 'Which skimdb to follow',
+      default: 'https://replicate.npmjs.com/registry'
+    })
+    .option('follow-registry', {
+      describe: 'Which registry to clone',
+      default: 'https://replicate.npmjs.com/registry'
+    })
+    .option('follow-user-agent', {
+      describe: 'What user agent to specify when contacting the registry',
+      default: 'IPFS replication-master'
+    })
+    .option('follow-concurrency', {
+      describe: 'How many registry updates to process at once',
+      default: os.cpus().length - 1
+    })
+    .option('follow-seq-file', {
+      describe: 'Where to store the seq file of how far through the npm feed we are',
+      default: 'seq.txt'
+    })
+    .options('follow-inactivity-ms', {
+      describe: 'If no updates are received in this time, restart the feed',
+      default: 1800000
+    })
+
+    .option('clone-delay', {
+      describe: 'How long to wait after startup before starting to clone npm',
+      default: 0
+    })
     .option('clone-pin', {
       describe: 'Whether to pin cloned modules',
+      default: false
+    })
+    .option('clone-publish', {
+      describe: 'Whether to publish IPNS names for cloned modules',
       default: false
     })
 
@@ -139,9 +168,14 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to re-use connections',
       default: true
     })
-    .option('request-max-sockets', {
-      describe: 'How many concurrent requests to have in flight',
-      default: 100
+    .option('request-concurrency', {
+      describe: 'How many simultaneous requests to make',
+      default: 5
+    })
+
+    .option('mdns-advert', {
+      describe: 'A string name to use to advertise this service over mDNS',
+      default: '_ipfs-npm._tcp'
     })
 }, require('../core'))
   .argv

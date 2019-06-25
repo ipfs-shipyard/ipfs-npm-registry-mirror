@@ -16,7 +16,7 @@ describe('load-tarball', () => {
   let ipfs
   let config
 
-  beforeEach(async () => {
+  beforeEach(() => {
     config = {
       registryUpdateInterval: 0,
       registry: `http://foo`,
@@ -46,7 +46,7 @@ describe('load-tarball', () => {
     }
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     mock.stopAll()
   })
 

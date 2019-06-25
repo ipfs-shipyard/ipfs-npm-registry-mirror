@@ -35,7 +35,7 @@ describe('load-manifest', () => {
   let updatedPackage = pkg(`i-have-new-${hat()}`)
   let newVersionOfUpdatedPackage = pkg(updatedPackage.name)
 
-  beforeEach(async () => {
+  beforeEach(() => {
     config = {
       registryUpdateInterval: 0,
       registryReadTimeout: 10000,
@@ -68,7 +68,7 @@ describe('load-manifest', () => {
     }
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     mock.stopAll()
   })
 

@@ -5,7 +5,7 @@ const {
 } = require('./workers')
 
 module.exports = () => {
-  return async (request, response) => {
+  return (request, response) => {
     const worker = request.query.worker
 
     if (!worker) {

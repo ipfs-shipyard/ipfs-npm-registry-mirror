@@ -7,7 +7,7 @@ const expect = require('chai')
 const toBoolean = require('../utils/to-boolean')
 
 describe('to-boolean', () => {
-  it('should convert things to boolean', async () => {
+  it('should convert things to boolean', () => {
     expect(toBoolean('true')).to.be.true()
     expect(toBoolean('1')).to.be.true()
     expect(toBoolean('yes')).to.be.true()

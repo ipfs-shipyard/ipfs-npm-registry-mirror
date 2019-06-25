@@ -7,7 +7,7 @@ const expect = require('chai')
 const getExternalUrl = require('../utils/get-external-url')
 
 describe('get-external-url', () => {
-  it('should use external url from config', async () => {
+  it('should use external url from config', () => {
     const config = {
       external: {
         protocol: 'http',
@@ -21,7 +21,7 @@ describe('get-external-url', () => {
     expect(result).to.equal('http://external-host:8080')
   })
 
-  it('should omit common ports', async () => {
+  it('should omit common ports', () => {
     const config = {
       external: {
         protocol: 'http',
@@ -35,7 +35,7 @@ describe('get-external-url', () => {
     expect(result).to.equal('http://external-host')
   })
 
-  it('should use internal url from config if external is not configured', async () => {
+  it('should use internal url from config if external is not configured', () => {
     const config = {
       http: {
         protocol: 'http',
@@ -49,7 +49,7 @@ describe('get-external-url', () => {
     expect(result).to.equal('http://internal-host:8080')
   })
 
-  it('should use prefer external configuration', async () => {
+  it('should use prefer external configuration', () => {
     const config = {
       http: {
         protocol: 'http',

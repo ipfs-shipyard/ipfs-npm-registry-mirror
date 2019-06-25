@@ -12,7 +12,7 @@ describe('save-manifest', () => {
   let ipfs
   let config
 
-  beforeEach(async () => {
+  beforeEach(() => {
     config = {
       ipfs: {
         prefix: `/registry-prefix-${hat()}`,

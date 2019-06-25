@@ -5,7 +5,7 @@ const {
 } = require('./workers')
 
 module.exports = () => {
-  return async (request, response, next) => {
+  return (request, response) => {
     online()
 
     response.statusCode = 204

@@ -39,7 +39,8 @@ module.exports = (overrides = {}) => {
       },
 
       fs: {
-        repo: option(process.env.IPFS_REPO, overrides.ipfsRepo)
+        repo: option(process.env.IPFS_REPO, overrides.ipfsRepo),
+        port: option(process.env.IPFS_REPO_PORT, overrides.ipfsRepoPort)
       }
     },
 

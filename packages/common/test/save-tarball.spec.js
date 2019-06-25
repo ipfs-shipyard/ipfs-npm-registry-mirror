@@ -19,7 +19,7 @@ describe('save-tarball', () => {
   let ipfs
   let config
 
-  beforeEach(async () => {
+  beforeEach(() => {
     config = {
       request: {
 
@@ -44,7 +44,7 @@ describe('save-tarball', () => {
     }
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     mock.stopAll()
   })
 

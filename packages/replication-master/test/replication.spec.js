@@ -98,7 +98,7 @@ describe('replication', function () {
     })
   })
 
-  it('should download a new module', async () => {
+  it('should download a new module', () => {
     const module = {
       name: `new-module-${hat()}`,
       version: '1.0.0'
@@ -127,7 +127,7 @@ describe('replication', function () {
     skim.publish(data, tarball)
 
     return new Promise((resolve, reject) => {
-      replicationMaster.app.once('processed', async (event) => {
+      replicationMaster.app.once('processed', (event) => {
         try {
           expect(event.name).to.equal(module.name)
           expect(Object.keys(event.versions).length).to.equal(1)
@@ -141,7 +141,7 @@ describe('replication', function () {
     })
   })
 
-  it('should download a module even if the previous one fails', async () => {
+  it('should download a module even if the previous one fails', () => {
     const module1 = {
       name: `new-module-${hat()}`,
       version: '1.0.0'
@@ -196,7 +196,7 @@ describe('replication', function () {
     let sawModule1Update = false
 
     return new Promise((resolve, reject) => {
-      replicationMaster.app.on('processed', async (event) => {
+      replicationMaster.app.on('processed', (event) => {
         if (event.name === module1.name) {
           sawModule1Update = true
           return
@@ -362,7 +362,7 @@ describe('replication', function () {
     skim.publish(data)
 
     return new Promise((resolve, reject) => {
-      replicationMaster.app.once('processed', async (event) => {
+      replicationMaster.app.once('processed', (event) => {
         try {
           expect(event.name).to.equal(module.name)
           expect(Object.keys(event.versions).length).to.equal(1)

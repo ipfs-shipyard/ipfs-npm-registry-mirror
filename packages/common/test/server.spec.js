@@ -26,13 +26,13 @@ describe('server', function () {
   this.timeout(10000)
   let server
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mock('ipfs', IPFS)
 
     server = mock.reRequire('../server')
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     mock.stopAll()
   })
 

@@ -3,7 +3,7 @@
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const log = require('ipfs-registry-mirror-common/utils/log')
 
-const findMaster = async (config) => {
+const findMaster = (config) => {
   return request(Object.assign({}, config.request, {
     uri: config.pubsub.master,
     json: true,
@@ -24,7 +24,7 @@ const handleUpdate = async (config, ipfs, event) => {
     await ipfs.files.rm(config.ipfs.prefix, {
       recursive: true
     })
-    log(`🐎 Copying /ipfs/${event.cid} to ${manifestPath}`)
+    log(`🐎 Copying /ipfs/${event.cid} to ${config.ipfs.prefix}`)
     await ipfs.files.cp(`/ipfs/${event.cid}`, config.ipfs.prefix)
   } catch (error) {
     log(`💥 Could not update ${event.module}`, error)
@@ -47,7 +47,7 @@ const subscribeToTopic = async (config, ipfs, master) => {
   })
 }
 
-const updateRoot = async (config, ipfs, master) => {
+const updateRoot = (config, ipfs, master) => {
   return ipfs.files.cp(master.root, config.ipfs.prefix)
 }
 

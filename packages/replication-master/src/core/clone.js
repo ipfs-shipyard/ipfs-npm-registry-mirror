@@ -2,120 +2,58 @@
 
 const follow = require('@achingbrain/follow-registry')
 const debug = require('debug')('ipfs:registry-mirror:clone')
-const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
-const saveTarballs = require('./save-tarballs')
 const sequenceFile = require('./sequence-file')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const cluster = require('cluster')
 
 let processed = []
 
-const publishOrUpdateIPNSName = async (manifest, ipfs, options) => {
-  let timer = Date.now()
-  const file = `${options.ipfs.prefix}/${manifest.name}`
-  let newNameCreated = false
-
-  if (!manifest.ipns) {
-    // we need to create the ipns name (which will be stable), add it to the
-    // manifest, save it again and then immediately update the ipns name
-
-    try {
-      await ipfs.key.gen(manifest.name, {
-        type: 'rsa',
-        size: 2048
-      })
-    } catch (err) {
-      if (!err.message.includes('already exists')) {
-        throw err
-      }
-    }
-
-    newNameCreated = true
-  }
-
-  const stats = await ipfs.files.stat(file)
-
-  let result = await ipfs.name.publish(`/ipfs/${stats.hash}`, {
-    key: manifest.name
-  })
-
-  if (newNameCreated) {
-    manifest.ipns = result.name
-    manifest = await saveManifest(manifest, ipfs, options)
-
-    const stats = await ipfs.files.stat(file)
-    await ipfs.name.publish(`/ipfs/${stats.hash}`, {
-      key: manifest.name
-    })
-  }
-
-  log(`💾 Updated ${manifest.name} IPNS name ${manifest.ipns} in ${Date.now() - timer}ms`)
-}
-
-module.exports = async (emitter, ipfs, options) => {
+module.exports = (emitter, options) => {
   log(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`)
 
   return new Promise((resolve) => {
     follow(Object.assign({}, options.follow, {
-      handler: async (data, callback) => {
+      handler: (data, callback) => {
         if (!data.json || !data.json.name) {
           return callback() // Bail, something is wrong with this change
         }
 
-        log(`🎉 Updated version of ${data.json.name}`)
-        const updateStart = Date.now()
+        const worker = cluster.fork()
+        worker.on('online', () => {
+          worker.updateStart = Date.now()
 
-        let manifest = data.json
-        const mfsPath = `${options.ipfs.prefix}/${data.json.name}`
-
-        let mfsVersion = {}
-        let timer
-
-        try {
-          log(`📃 Reading ${data.json.name} cached manifest from ${mfsPath}`)
-          timer = Date.now()
-          mfsVersion = await ipfs.files.read(mfsPath)
-          log(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)
-        } catch (error) {
-          if (error.message.includes('does not exist')) {
-            debug(`${mfsPath} not in MFS`)
-          } else {
-            debug(`Could not read ${mfsPath}`, error)
-          }
-        }
-
-        // save our existing versions so we don't re-download tarballs we already have
-        Object.keys(mfsVersion.versions || {}).forEach(versionNumber => {
-          manifest.versions[versionNumber] = mfsVersion.versions[versionNumber]
-        })
-
-        try {
-          timer = Date.now()
-          await saveTarballs(manifest, ipfs, options)
-          log(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`)
-
-          manifest = await saveManifest(manifest, ipfs, options)
-
-          if (!options.clone.publish) {
-            await publishOrUpdateIPNSName(manifest, ipfs, options)
-          }
-
-          processed.push(Date.now())
-          const oneHourAgo = Date.now() - 3600000
-
-          processed = processed.filter(time => {
-            return time > oneHourAgo
+          worker.send({
+            options,
+            data
           })
+        })
+        worker.on('message', (message) => {
+          if (message.error) {
+            const err = new Error(message.error.message)
+            err.stack = message.error.stack
+            err.code = message.error.code
 
-          log(`🦕 [${data.seq}] processed ${manifest.name} in ${Date.now() - updateStart}ms, ${(processed.length / 3600).toFixed(3)} modules/s`)
+            debug(err)
+            log(`💥 [${data.seq}] error processing ${data.json.name}`, err)
+          } else {
+            processed.push(Date.now())
+            const oneHourAgo = Date.now() - 3600000
 
-          emitter.emit('processed', manifest)
-          emitter.emit('seq', data.seq)
-        } catch (error) {
-          debug(error)
-          log(`💥 [${data.seq}] error processing ${manifest.name}`, error)
-        }
+            processed = processed.filter(time => {
+              return time > oneHourAgo
+            })
 
-        callback()
+            log(`🦕 [${data.seq}] processed ${data.json.name} in ${Date.now() - worker.updateStart}ms, ${(processed.length / 3600).toFixed(3)} modules/s`)
+
+            emitter.emit('processed', data.json)
+            emitter.emit('seq', data.seq)
+          }
+
+          worker.kill()
+        })
+        worker.on('exit', (code, signal) => {
+          callback()
+        })
       },
       seq: sequenceFile(options)
     }), (stream) => {
