@@ -1,10 +1,16 @@
 'use strict'
 
+const pkg = require('../../package')
+const cluster = require('cluster')
+
+process.title = `${pkg.name}-worker-${cluster.worker.id}`
+
 const debug = require('debug')('ipfs:registry-mirror:clone')
 const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
 const saveTarballs = require('../core/save-tarballs')
 const log = require('ipfs-registry-mirror-common/utils/log')
 const getAnIPFS = require('ipfs-registry-mirror-common/utils/get-an-ipfs')
+let ipfs
 
 const publishOrUpdateIPNSName = async (manifest, ipfs, options) => {
   let timer = Date.now()
@@ -48,21 +54,22 @@ const publishOrUpdateIPNSName = async (manifest, ipfs, options) => {
   log(`💾 Updated ${manifest.name} IPNS name ${manifest.ipns} in ${Date.now() - timer}ms`)
 }
 
-process.on('message', async ({ data, options }) => {
-  log(`🎉 Updated version of ${data.json.name}`)
-  const ipfs = await getAnIPFS(options)
+process.on('message', async ({ manifest, options, seq }) => {
+  if (!ipfs) {
+    ipfs = await getAnIPFS(options)
+  }
 
-  let manifest = data.json
-  const mfsPath = `${options.ipfs.prefix}/${data.json.name}`
+  log(`🎉 Updated version of ${manifest.name}`)
+  const mfsPath = `${options.ipfs.prefix}/${manifest.name}`
 
   let mfsVersion = {}
   let timer
 
   try {
-    log(`📃 Reading ${data.json.name} cached manifest from ${mfsPath}`)
+    log(`📃 Reading ${manifest.name} cached manifest from ${mfsPath}`)
     timer = Date.now()
     mfsVersion = await ipfs.files.read(mfsPath)
-    log(`📃 Read ${data.json.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)
+    log(`📃 Read ${manifest.name} cached manifest from ${mfsPath} in ${Date.now() - timer}ms`)
   } catch (error) {
     if (error.message.includes('does not exist')) {
       debug(`${mfsPath} not in MFS`)
@@ -79,17 +86,22 @@ process.on('message', async ({ data, options }) => {
   try {
     timer = Date.now()
     await saveTarballs(manifest, ipfs, options)
-    log(`🧳 Saved ${data.json.name} tarballs in ${Date.now() - timer}ms`)
+    log(`🧳 Saved ${manifest.name} tarballs in ${Date.now() - timer}ms`)
 
     manifest = await saveManifest(manifest, ipfs, options)
 
-    if (!options.clone.publish) {
+    if (options.clone.publish) {
       await publishOrUpdateIPNSName(manifest, ipfs, options)
     }
 
-    process.send({})
+    process.send({
+      seq: seq,
+      manifest
+    })
   } catch (error) {
     process.send({
+      seq: seq,
+      manifest,
       error: {
         message: error.message,
         stack: error.stack,
