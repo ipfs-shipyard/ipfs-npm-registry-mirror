@@ -24,7 +24,7 @@ $ ./deploy.sh
 
 ## Overview
 
-There are two docker images, a [replication-master](./packages/replication-master/README.md) which continually syncs the npm registry and all of it's packages and a [registry-mirror](./packages/registry-mirror/README.md) which serves files to clients.
+There are two docker images, a [replication-master](./packages/replication-master/README.md) which continually syncs the npm registry and all of its packages and a [registry-mirror](./packages/registry-mirror/README.md) which serves files to clients.
 
 The replication-master publishes notifications of new packages to the mirrors via [pubsub](https://ipfs.io/blog/25-pubsub/), they then save the [CID](https://www.npmjs.com/package/cids)s of newly published modules and use them to resolve them on the IPFS network.
 
