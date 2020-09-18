@@ -3,7 +3,6 @@
 const IpfsApi = require('ipfs-http-client')
 const ipfsdCtrl = require('ipfsd-ctl')
 const which = require('which-promise')
-const promisify = require('util').promisify
 const s3Repo = require('./s3-repo')
 const fsRepo = require('./fs-repo')
 const IPFS = require('ipfs')
@@ -21,6 +20,10 @@ const cleanUp = () => {
 
 process.on('SIGTERM', cleanUp)
 process.on('SIGINT', cleanUp)
+
+const randomPort = () => {
+  return Math.floor(Math.random() * 64535) + 1000
+}
 
 const spawn = (createArgs, spawnArgs = { init: true }) => {
   return new Promise((resolve, reject) => {
@@ -48,7 +51,7 @@ const startIpfs = async (config) => {
       config.ipfs.repo = fsRepo(config.ipfs.fs)
     }
 
-    const node = new IPFS({
+    const node = await IPFS.create({
       repo: config.ipfs.repo,
       EXPERIMENTAL: {
         pubsub: true,
@@ -68,11 +71,9 @@ const startIpfs = async (config) => {
         }
       }
     })
-    node.once('ready', () => callback(null, ipfs))
-    node.once('error', (error) => callback(error))
 
     process.on('exit', () => {
-      ipfs.stop()
+      node.stop()
     })
 
     return node

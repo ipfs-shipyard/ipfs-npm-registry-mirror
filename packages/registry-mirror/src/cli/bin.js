@@ -10,11 +10,11 @@ if (process.env.NODE_ENV !== 'production') {
   log(`🔍 Enabling profiling at ${url}`)
 
   try {
-    require('@achingbrain/appmetrics-dash').attach({
+    require('appmetrics-dash').attach({
       url
     })
   } catch (error) {
-    log(`💥 Enabling profiling failed`, error)
+    log('💥 Enabling profiling failed', error)
   }
 }
 

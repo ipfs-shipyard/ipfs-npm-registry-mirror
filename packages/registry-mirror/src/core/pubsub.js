@@ -17,7 +17,7 @@ const handleUpdate = async (config, ipfs, event) => {
     return
   }
 
-  log(`🦄 Incoming update`)
+  log('🦄 Incoming update')
 
   try {
     log(`🐴 Removing old ${config.ipfs.prefix}`)

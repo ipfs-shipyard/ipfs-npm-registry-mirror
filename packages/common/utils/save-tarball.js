@@ -1,48 +1,28 @@
 'use strict'
 
-const debug = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
 const request = require('./retry-request')
-const CID = require('cids')
 const crypto = require('crypto')
-const loadManifest = require('./load-manifest')
-const saveManifest = require('./save-manifest')
-const {
-  PassThrough
-} = require('stream')
+const loadPackument = require('./load-packument')
+const savePackument = require('./save-packument')
 const log = require('./log')
 
-const saveTarball = (config, packageName, versionNumber, ipfs, localOnly, done = () => {}) => {
-  const outputStream = new PassThrough()
+const saveTarball = async function (packageName, versionNumber, ipfs, config) {
+  const packument = await loadPackument(packageName, ipfs, config)
+  const version = packument.versions[versionNumber]
 
-  loadManifest(config, ipfs, packageName, localOnly)
-    .then(async (manifest) => {
-      const version = manifest.versions[versionNumber]
+  validate(version, versionNumber, packageName)
 
-      validate(version, versionNumber, packageName)
+  if (version.dist.cid) {
+    log(`Skipping version ${versionNumber} of ${packageName} - already downloaded`)
+    return
+  }
 
-      if (version.dist.cid) {
-        log(`Skipping version ${versionNumber} of ${packageName} - already downloaded`)
-        outputStream.end()
+  const startTime = Date.now()
+  const cid = await downloadFile(version.dist.tarball, version.dist.shasum, ipfs, config)
 
-        return done()
-      }
+  log(`🏄‍♀️ Added ${version.dist.tarball} with hash ${cid} in ${Date.now() - startTime}ms`)
 
-      const startTime = Date.now()
-      const cid = await downloadFile(config, ipfs, version.dist.tarball, version.dist.shasum, outputStream)
-
-      log(`🏄‍♀️ Added ${version.dist.tarball} with hash ${cid} in ${Date.now() - startTime}ms`)
-
-      await updateCid(config, ipfs, packageName, versionNumber, cid, localOnly)
-
-      done()
-    })
-    .catch(error => {
-      log(`💥 Error storing tarball ${packageName} ${versionNumber}`, error)
-
-      done(error)
-    })
-
-  return outputStream
+  await updateCid(packageName, versionNumber, cid, ipfs, config)
 }
 
 const validate = (version, versionNumber, packageName) => {
@@ -59,58 +39,61 @@ const validate = (version, versionNumber, packageName) => {
   }
 }
 
-const updateCid = async (config, ipfs, packageName, versionNumber, cid, localOnly) => {
+const updateCid = async (packageName, versionNumber, cid, ipfs, config) => {
+  const cidString = cid.toString('base32')
+
   while (true) {
-    let manifest = await loadManifest(config, ipfs, packageName, localOnly)
-    manifest.versions[versionNumber].dist.cid = cid
+    let packument = await loadPackument(packageName, ipfs, config)
+    packument.versions[versionNumber].dist.cid = cidString
 
-    await saveManifest(manifest, ipfs, config)
+    await savePackument(packument, ipfs, config)
 
-    manifest = await loadManifest(config, ipfs, packageName, localOnly)
+    packument = await loadPackument(packageName, ipfs, config)
 
-    if (manifest.versions[versionNumber].dist.cid === cid) {
+    if (packument.versions[versionNumber].dist.cid === cidString) {
       return
     }
 
-    log(`Manifest version cid ${manifest.versions[versionNumber].dist.cid} did not equal ${cid}`)
+    log(`Manifest version cid ${packument.versions[versionNumber].dist.cid} did not equal ${cidString}`)
   }
 }
 
-const downloadFile = async (config, ipfs, url, shasum, outputStream) => {
+const downloadFile = async (url, shasum, ipfs, config) => {
   log(`Downloading ${url}`)
 
   const hash = crypto.createHash('sha1')
   hash.setEncoding('hex')
   hash.on('error', () => {})
 
-  return request(Object.assign({}, config.request, {
+  const stream = await request(Object.assign({}, config.request, {
     uri: url
   }))
-    .then(stream => {
-      stream.pipe(outputStream)
-      stream.pipe(hash)
+  stream.pipe(hash)
 
-      return ipfs.add(stream, {
-        wrapWithDirectory: false,
-        pin: config.clone.pin
-      })
-    })
-    .then(files => {
-      const result = hash.read()
+  const { cid } = await ipfs.add(stream, {
+    wrapWithDirectory: false,
+    pin: config.clone.pin,
+    cidVersion: 1,
+    rawLeaves: true
+  })
 
-      if (result !== shasum) {
-        // we've already piped to the client at this point so can't retry the download
-        // abort saving the CID of the corrupted download to our copy of the manifest
-        // instead so we retry next time it's requested
-        throw new Error(`File downloaded from ${url} had invalid shasum ${result} - expected ${shasum}`)
-      }
+  const result = hash.read()
 
-      log(`File downloaded from ${url} had shasum ${result} - matched ${shasum}`)
+  if (result !== shasum) {
+    if (config.clone.pin) {
+      // if we pinned the corrupt download, unpin it so it will get garbage collected later
+      await ipfs.pin.rm(cid)
+    }
 
-      const file = files.pop()
+    // we've already piped to the client at this point so can't retry the download
+    // abort saving the CID of the corrupted download to our copy of the manifest
+    // instead so we retry next time it's requested
+    throw new Error(`File downloaded from ${url} had invalid shasum ${result} - expected ${shasum}`)
+  }
 
-      return new CID(file.hash).toV1().toBaseEncodedString('base32')
-    })
+  log(`File downloaded from ${url} had shasum ${result} - matched ${shasum}`)
+
+  return cid
 }
 
 module.exports = saveTarball

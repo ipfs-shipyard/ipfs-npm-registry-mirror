@@ -5,14 +5,15 @@ const clone = require('./clone')
 const replicationMaster = require('./pubsub')
 const advertise = require('./mdns')
 const server = require('ipfs-registry-mirror-common/server')
-const root = require('./root')
-const worker = require('./worker')
-const workerOnline = require('./worker-online')
-const delay = require('promise-delay')
+const root = require('./routes/root')
+const worker = require('./routes/worker')
+const workerOnline = require('./routes/worker-online')
+const delay = require('delay')
 const {
   status
-} = require('./workers')
+} = require('./routes/workers')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const AbortController = require('abort-controller')
 
 module.exports = async (options) => {
   options = config(options)
@@ -53,13 +54,16 @@ module.exports = async (options) => {
 
   log(`⌚ Workers took ${Date.now() - time}ms to initialise`)
 
-  const feed = await clone(result.app, options)
+  const controller = new AbortController()
+
+  clone(result.app, controller.signal, options)
+    .then(() => {}, () => {})
 
   const stop = result.stop
   const advert = advertise(result.ipfs, options)
 
   result.stop = () => {
-    feed.stop()
+    controller.abort()
     advert.stop()
     stop()
   }

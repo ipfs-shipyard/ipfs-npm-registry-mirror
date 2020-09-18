@@ -9,46 +9,15 @@ const FileDataStore = require('datastore-fs')
 const level = require('level')
 const net = require('net')
 const memdown = require('memdown')
+const { Errors } = require('interface-datastore')
 
 let lock = 'fs'
-let db
 
 if (cluster.isWorker) {
   lock = 'memory'
 }
 
-const createMasterLevel = (path, port) => {
-  return new Promise((resolve, reject) => {
-    level(path, {
-      valueEncoding: 'binary',
-      compression: false // same default as go
-    }, (err, master) => {
-      if (err) {
-        return reject(err)
-      }
-
-      db = master
-
-      var server = net.createServer((sock) => {
-        sock.on('error', () => {
-          sock.destroy()
-        })
-
-        sock.pipe(multileveldown.server(db)).pipe(sock)
-      })
-
-      server.listen(port, (err) => {
-        if (err) {
-          return reject(err)
-        }
-
-        resolve()
-      })
-    })
-  })
-}
-
-const fsRepo = ({ repo, port = 9000 }) => {
+const fsRepo = ({ repo }) => {
   if (process.env.NODE_ENV === 'development') {
     repo = `${repo}-test`
   }
@@ -62,22 +31,62 @@ const fsRepo = ({ repo, port = 9000 }) => {
         db: () => memdown()
       })
 
-      this.db = multileveldown.client({
+      this.opts = opts
+    }
+
+    _initDb (database, path) {
+      if (cluster.isMaster) {
+        return level(path, {
+          valueEncoding: 'binary',
+          compression: false // same default as go
+        })
+      }
+
+      return multileveldown.client({
         retry: true,
         valueEncoding: 'binary',
         compression: false // same default as go
       })
-      this.path = path
-      this.open()
     }
 
     async open () {
-      if (cluster.isMaster && !db) {
-        await createMasterLevel(repo, port)
+      if (cluster.isMaster) {
+        try {
+          await this.db.open()
+
+          return new Promise((resolve, reject) => {
+            this._server = net.createServer((sock) => {
+              sock.on('error', () => {
+                sock.destroy()
+              })
+
+              sock.pipe(multileveldown.server(this.db)).pipe(sock)
+            })
+
+            this._server.listen(this.opts.port, (err) => {
+              if (err) {
+                return reject(err)
+              }
+
+              resolve()
+            })
+          })
+        } catch (err) {
+          throw Errors.dbOpenFailedError(err)
+        }
       }
 
-      const sock = net.connect(port)
-      sock.pipe(this.db.connect()).pipe(sock)
+      this._sock = net.connect(this.opts.port)
+      this._sock.pipe(this.db.connect()).pipe(this._sock)
+    }
+
+    close () {
+      if (cluster.isMaster) {
+        this._server.close()
+        return this.db.close()
+      }
+
+      this._sock.close()
     }
   }
 
@@ -87,7 +96,16 @@ const fsRepo = ({ repo, port = 9000 }) => {
       root: FileDataStore,
       blocks: FileDataStore,
       keys: FileDataStore,
-      datastore: MultiLeveLDataStore
+      datastore: MultiLeveLDataStore,
+      pins: MultiLeveLDataStore
+    },
+    storageBackendOptions: {
+      datastore: {
+        port: 39281
+      },
+      pins: {
+        port: 39282
+      }
     }
   })
 }

@@ -9,11 +9,11 @@ if (process.env.NODE_ENV !== 'production' || process.env.PROFILING) {
   log(`🔍 Enabling profiling at ${url}`)
 
   try {
-    require('@achingbrain/appmetrics-dash').attach({
+    require('appmetrics-dash').attach({
       url
     })
   } catch (error) {
-    log(`💥 Enabling profiling failed`, error)
+    log('💥 Enabling profiling failed', error)
   }
 }
 
@@ -114,13 +114,13 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Used to secure operations on the keystore - must be over 20 characters long'
     })
 
-    .option('follow-skim', {
-      describe: 'Which skimdb to follow',
-      default: 'https://replicate.npmjs.com/registry'
+    .option('follow-replicator', {
+      describe: 'Where to get changes from',
+      default: 'https://replicate.npmjs.com/registry/_changes'
     })
     .option('follow-registry', {
       describe: 'Which registry to clone',
-      default: 'https://replicate.npmjs.com/registry'
+      default: 'https://registry.npmjs.com'
     })
     .option('follow-user-agent', {
       describe: 'What user agent to specify when contacting the registry',
@@ -128,7 +128,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('follow-concurrency', {
       describe: 'How many registry updates to process at once',
-      default: os.cpus().length - 1
+      default: 10
     })
     .option('follow-seq-file', {
       describe: 'Where to store the seq file of how far through the npm feed we are',
@@ -151,9 +151,13 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Whether to publish IPNS names for cloned modules',
       default: false
     })
+    .option('clone-concurrency', {
+      describe: 'How many cluster workers to use to process module updates',
+      default: os.cpus().length - 1
+    })
 
     .option('request-retries', {
-      describe: 'How many times to retry when downloading manifests and tarballs from the registry',
+      describe: 'How many times to retry when downloading tarballs from the registry',
       default: 5
     })
     .option('request-retry-delay', {
@@ -170,7 +174,7 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
     })
     .option('request-concurrency', {
       describe: 'How many simultaneous requests to make',
-      default: 5
+      default: 50
     })
 
     .option('mdns-advert', {

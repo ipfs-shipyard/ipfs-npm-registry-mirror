@@ -20,7 +20,7 @@ const getAnIPFS = require('./utils/get-an-ipfs')
 module.exports = async (config, handlers = async () => {}) => {
   const ipfs = await getAnIPFS(config)
 
-  log(`🛫 Starting server`)
+  log('🛫 Starting server')
 
   const app = express()
   app.use(requestLog)
@@ -65,7 +65,7 @@ module.exports = async (config, handlers = async () => {}) => {
       })
     })
 
-    let server = app.listen(config.http.port, callback)
+    const server = app.listen(config.http.port, callback)
     server.once('error', callback)
 
     app.locals.ipfs = ipfs

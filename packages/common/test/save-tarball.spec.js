@@ -10,11 +10,12 @@ const hat = require('hat')
 const {
   PassThrough
 } = require('stream')
+const CID = require('cids')
 
 describe('save-tarball', () => {
   let saveTarball
-  let loadManifest
-  let saveManifest
+  let loadPackument
+  let savePackument
   let request
   let ipfs
   let config
@@ -30,12 +31,12 @@ describe('save-tarball', () => {
     }
 
     request = sinon.stub()
-    loadManifest = sinon.stub()
-    saveManifest = sinon.stub()
+    loadPackument = sinon.stub()
+    savePackument = sinon.stub()
 
     mock('../utils/retry-request', request)
-    mock('../utils/save-manifest', saveManifest)
-    mock('../utils/load-manifest', loadManifest)
+    mock('../utils/save-packument', savePackument)
+    mock('../utils/load-packument', loadPackument)
 
     saveTarball = mock.reRequire('../utils/save-tarball')
 
@@ -48,7 +49,7 @@ describe('save-tarball', () => {
     mock.stopAll()
   })
 
-  it('should not save a tarball we have already downloaded', (done) => {
+  it('should not save a tarball we have already downloaded', async () => {
     const versionNumber = '1.0.0'
     const pkg = {
       name: `module-${hat()}`,
@@ -63,39 +64,37 @@ describe('save-tarball', () => {
       }
     }
 
-    loadManifest.withArgs(config, ipfs, pkg.name)
+    loadPackument.withArgs(pkg.name, ipfs, config)
       .resolves(pkg)
 
-    saveTarball(config, pkg.name, versionNumber, ipfs, false, () => {
-      expect(request.called).to.be.false()
+    await saveTarball(pkg.name, versionNumber, ipfs, config)
 
-      done()
-    })
+    expect(request.called).to.be.false()
   })
 
-  it('should download a missing tarball', (done) => {
+  it('should download a missing tarball', async () => {
     const versionNumber = '1.0.0'
     const pkg = {
       name: `module-${hat()}`,
       versions: {
         [versionNumber]: {
           dist: {
-            source: 'tarball-url',
+            tarball: 'tarball-url',
             shasum: '3c4fb10163dc33fd83b588fe36af9aa5efba2985'
           }
         }
       }
     }
 
-    loadManifest.withArgs(config, ipfs, pkg.name)
+    loadPackument.withArgs(pkg.name, ipfs, config)
       .resolves(pkg)
 
     ipfs.add.callsFake(stream => {
       return new Promise((resolve) => {
         stream.on('end', () => {
-          resolve([{
-            hash: 'QmZEYeEin6wEB7WNyiT7stYTmbYFGy7BzM7T3hRDzRxTvY'
-          }])
+          resolve({
+            cid: new CID('QmZEYeEin6wEB7WNyiT7stYTmbYFGy7BzM7T3hRDzRxTvY').toV1()
+          })
         })
       })
     })
@@ -114,10 +113,8 @@ describe('save-tarball', () => {
         return Promise.resolve(stream)
       })
 
-    saveTarball(config, pkg.name, versionNumber, ipfs, false, () => {
-      expect(request.called).to.be.true()
+    await saveTarball(pkg.name, versionNumber, ipfs, config)
 
-      done()
-    })
+    expect(request.called).to.be.true()
   })
 })

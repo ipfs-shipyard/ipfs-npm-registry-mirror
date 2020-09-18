@@ -8,10 +8,11 @@ const expect = require('chai')
   .expect
 const hat = require('hat')
 const CID = require('cids')
+const toBuffer = require('it-to-buffer')
 
 describe('load-tarball', () => {
   let loadTarball
-  let loadManifest
+  let loadPackument
   let saveTarball
   let ipfs
   let config
@@ -19,7 +20,7 @@ describe('load-tarball', () => {
   beforeEach(() => {
     config = {
       registryUpdateInterval: 0,
-      registry: `http://foo`,
+      registry: 'http://foo',
       ipfs: {
         prefix: `/registry-prefix-${hat()}`
       },
@@ -33,16 +34,16 @@ describe('load-tarball', () => {
       }
     }
 
-    loadManifest = sinon.stub()
+    loadPackument = sinon.stub()
     saveTarball = sinon.stub()
 
-    mock('../utils/load-manifest', loadManifest)
+    mock('../utils/load-packument', loadPackument)
     mock('../utils/save-tarball', saveTarball)
 
     loadTarball = mock.reRequire('../utils/load-tarball')
 
     ipfs = {
-      catReadableStream: sinon.stub()
+      cat: sinon.stub()
     }
   })
 
@@ -65,16 +66,18 @@ describe('load-tarball', () => {
       }
     }
 
-    loadManifest.withArgs(config, ipfs, packageName)
+    loadPackument.withArgs(packageName, ipfs, config)
       .returns(pkg)
 
-    ipfs.catReadableStream
+    ipfs.cat
       .withArgs(new CID(pkg.versions[packageVersion].dist.cid))
-      .resolves('ok')
+      .returns(async function * () { // eslint-disable-line require-await
+        yield Buffer.from('ok')
+      }())
 
-    const result = await loadTarball(config, ipfs, path)
+    const result = await toBuffer(loadTarball(path, ipfs, config))
 
-    expect(result).to.equal('ok')
+    expect(result.toString()).to.equal('ok')
   })
 
   it('should download a tarball that has no cid', async () => {
@@ -92,14 +95,22 @@ describe('load-tarball', () => {
       }
     }
 
-    loadManifest.withArgs(config, ipfs, packageName)
+    loadPackument.withArgs(packageName, ipfs, config)
       .returns(pkg)
 
-    saveTarball.withArgs(config, pkg.name, packageVersion, ipfs)
-      .returns('also ok')
+    saveTarball.withArgs(pkg.name, packageVersion, ipfs, config)
+      .callsFake(() => {
+        pkg.versions[packageVersion].dist.cid = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
+      })
 
-    const result = await loadTarball(config, ipfs, path)
+    ipfs.cat
+      .withArgs(new CID('QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'))
+      .returns(async function * () { // eslint-disable-line require-await
+        yield Buffer.from('also ok')
+      }())
 
-    expect(result).to.equal('also ok')
+    const result = await toBuffer(loadTarball(path, ipfs, config))
+
+    expect(result.toString()).to.equal('also ok')
   })
 })

@@ -56,7 +56,7 @@ const createSkimDb = async (registry) => {
     }
   }
 
-  let skimDb = await createTestServer(resources)
+  const skimDb = await createTestServer(resources)
 
   skimDb.publish = (update, tarball) => {
     registry[`/${update.name}`] = JSON.stringify(update.json)

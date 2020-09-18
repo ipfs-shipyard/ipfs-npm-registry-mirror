@@ -1,17 +1,18 @@
 'use strict'
 
-const delay = require('promise-delay')
+const delay = require('delay')
 
 const timeout = (promise, ms) => {
   return Promise.race([
     promise,
-    new Promise(async (resolve, reject) => {
-      await delay(ms)
+    new Promise((resolve, reject) => {
+      delay(ms)
+        .then(() => {
+          const error = new Error('Timed out')
+          error.code = 'ETIMEOUT'
 
-      const error = new Error('Timed out')
-      error.code = 'ETIMEOUT'
-
-      reject(error)
+          reject(error)
+        }, reject)
     })
   ])
 }

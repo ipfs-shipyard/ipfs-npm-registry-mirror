@@ -8,7 +8,7 @@ const topic = `ipfs-registry-pubsub-${hat()}`
 let lastBaseDir
 
 const publishIpnsName = async (ipfs, baseDir) => {
-  let previousBaseDir = lastBaseDir
+  const previousBaseDir = lastBaseDir
   lastBaseDir = baseDir
 
   if (baseDir !== previousBaseDir) {
@@ -16,7 +16,7 @@ const publishIpnsName = async (ipfs, baseDir) => {
 
     await ipfs.name.publish(`/ipfs/${baseDir}`)
 
-    log(`📰 Published IPNS update`)
+    log('📰 Published IPNS update')
   }
 }
 
@@ -31,13 +31,13 @@ const publishUpdate = async (ipfs, baseDir) => {
 
 const master = async (config, ipfs, emitter) => {
   emitter.on('processed', async () => {
-    const baseDir = await findBaseDir(config, ipfs)
+    const baseDir = await findBaseDir(ipfs, config)
 
     if (config.clone.publish) {
       try {
         await publishIpnsName(ipfs, baseDir)
       } catch (error) {
-        log(`💥 Error publishing IPNS name`, error)
+        log('💥 Error publishing IPNS name', error)
       }
     }
 
@@ -48,15 +48,11 @@ const master = async (config, ipfs, emitter) => {
     }
   })
 
-  try {
-    const root = await findBaseDir(config, ipfs)
+  const root = await findBaseDir(ipfs, config)
 
-    return {
-      topic,
-      root
-    }
-  } catch (error) {
-    throw error
+  return {
+    topic,
+    root
   }
 }
 

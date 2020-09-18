@@ -1,6 +1,6 @@
 'use strict'
 
-const pkg = require('../../package.json')
+const pkg = require('../../../package.json')
 const findBaseDir = require('ipfs-registry-mirror-common/utils/find-base-dir')
 
 let info
@@ -17,7 +17,7 @@ const findInfo = async (config, ipfs, worker) => {
       ipfs.id(),
       ipfs.swarm.addrs(),
       config.pubsub.topic ? ipfs.pubsub.peers(config.pubsub.topic) : [],
-      findBaseDir(config, ipfs)
+      findBaseDir(ipfs, config)
     ])
 
     id.addresses = [
@@ -30,7 +30,7 @@ const findInfo = async (config, ipfs, worker) => {
       index: worker.index,
       version: pkg.version,
       ipfs: id,
-      peers: peers.map(peer => peer.id.toB58String()),
+      peers: peers.map(peer => peer.id.toString()),
       topicPeers,
       // until js can resolve IPNS names remotely, just use the raw hash
       root: `/ipfs/${baseDir}`

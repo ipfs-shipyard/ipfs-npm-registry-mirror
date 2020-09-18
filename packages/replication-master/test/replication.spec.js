@@ -13,8 +13,8 @@ const expect = require('chai')
   .use(require('dirty-chai'))
   .expect
 const hat = require('hat')
-const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
-const delay = require('promise-delay')
+const savePackument = require('ipfs-registry-mirror-common/utils/save-packument')
+const delay = require('delay')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 
 const baseDir = '/commons-registry-clone-test'
@@ -23,7 +23,7 @@ describe('replication', function () {
   this.timeout(120000)
 
   let replicationMaster
-  let upstreamModules = {}
+  const upstreamModules = {}
   let replicationMasterUrl
   let skim
   let config
@@ -32,7 +32,9 @@ describe('replication', function () {
     return Object.assign({}, {
       httpProtocol: 'http',
       httpHost: '127.0.0.1',
-      registry: `http://127.0.0.1:${registry.address().port}`,
+      registries: [
+        `http://127.0.0.1:${registry.address().port}`
+      ],
       requestRetries: 5,
       requestRetryDelay: 100,
       requestConcurrency: 5,
@@ -50,7 +52,10 @@ describe('replication', function () {
       externalHost: 'replication.registry.ipfs.io',
       externalPort: 443,
       externalProtocol: 'https',
-      externalIp: '35.178.192.119'
+      externalIp: '35.178.192.119',
+      ipfsPass: 'super-secret-super-secret-super-secret',
+      cloneConcurrency: 0,
+      cloneDelay: 1
     }, config)
   }
 
@@ -352,7 +357,7 @@ describe('replication', function () {
       }
     }
 
-    await saveManifest(manifest, replicationMaster.app.locals.ipfs, {
+    await savePackument(manifest, replicationMaster.app.locals.ipfs, {
       ipfs: {
         prefix: baseDir,
         flush: true

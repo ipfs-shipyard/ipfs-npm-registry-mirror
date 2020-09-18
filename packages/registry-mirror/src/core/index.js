@@ -5,9 +5,9 @@ const config = require('./config')
 const replicationWorker = require('./pubsub')
 const getExternalUrl = require('ipfs-registry-mirror-common/utils/get-external-url')
 const server = require('ipfs-registry-mirror-common/server')
-const tarball = require('./tarball')
-const manifest = require('./manifest')
-const root = require('./root')
+const tarball = require('./routes/tarball')
+const packument = require('./routes/packument')
+const root = require('./routes/root')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const findExternalPort = require('./find-external-port')
 const log = require('ipfs-registry-mirror-common/utils/log')
@@ -35,10 +35,10 @@ module.exports = async (options) => {
 
     // intercept requests for tarballs and manifests
     app.get('/*.tgz', tarball(options, ipfs, app))
-    app.get('/*', manifest(options, ipfs, app))
+    app.get('/*', packument(options, ipfs, app))
 
     // everything else should just proxy for the registry
-    const registry = proxy(options.registry, {
+    const registry = proxy(options.registries[0], {
       limit: options.registryUploadSizeLimit
     })
     app.put('/*', registry)
@@ -59,7 +59,7 @@ module.exports = async (options) => {
     retryDelay: 5000
   }))
 
-  let url = getExternalUrl(options)
+  const url = getExternalUrl(options)
 
   log(`🔧 Please either update your npm config with 'npm config set registry ${url}'`)
   log(`🔧 or use the '--registry' flag, eg: 'npm install --registry=${url}'`)
