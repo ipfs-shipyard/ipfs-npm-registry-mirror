@@ -2,10 +2,11 @@
 
 const follow = require('@achingbrain/follow-registry')
 const debug = require('debug')('ipfs:registry-mirror:clone')
-const sequenceFile = require('./sequence-file')
+const sequenceFile = require('../sequence-file')
 const log = require('ipfs-registry-mirror-common/utils/log')
 const cluster = require('cluster')
 const delay = require('delay')
+const mainThreadWorker = require('./main-thread-worker')
 
 let processed = []
 
@@ -47,13 +48,16 @@ const fillWorkerPool = async (options) => {
     return
   }
 
-  log(`👷 Using ${options.clone.concurrency} workers to process updates`)
   while (Object.keys(cluster.workers).length < options.clone.concurrency) {
     await createWorker()
   }
 }
 
-const findWorker = async (options) => {
+const findWorker = async (ipfs, options) => {
+  if (options.clone.concurrency === 0) {
+    return mainThreadWorker(ipfs)
+  }
+
   await fillWorkerPool(options)
 
   // wait for a free worker
@@ -70,8 +74,14 @@ const findWorker = async (options) => {
   }
 }
 
-module.exports = async (emitter, signal, options) => {
+module.exports = async (emitter, signal, ipfs, options) => {
   log(`🦎 Replicating registry with concurrency ${options.follow.concurrency}...`)
+
+  if (options.clone.concurrency) {
+    log(`👷 Using ${options.clone.concurrency} workers to process updates`)
+  } else {
+    log('👷 Processing package updates on main thread')
+  }
 
   await fillWorkerPool(options)
 
@@ -82,7 +92,13 @@ module.exports = async (emitter, signal, options) => {
           return
         }
 
-        const worker = await findWorker(options)
+        if (!packument || !packument.name) {
+          // invalid response from npm
+          done().then(() => {}, () => {})
+          continue
+        }
+
+        const worker = await findWorker(ipfs, options)
         worker.updateStart = Date.now()
         worker.processing = true
 
@@ -101,7 +117,7 @@ module.exports = async (emitter, signal, options) => {
 
             log(`🦕 [${message.seq}] processed ${message.name} in ${Date.now() - worker.updateStart}ms, ${stats.modulesPerSecond()} modules/s`)
 
-            emitter.emit('processed', message.manifest)
+            emitter.emit('processed', message.name)
             emitter.emit('seq', message.seq)
           }
 

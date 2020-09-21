@@ -3,6 +3,7 @@
 const IPFS = require('ipfs')
 const s3Repo = require('./s3-repo')
 const fsRepo = require('./fs-repo')
+const clusterRepo = require('./cluster-repo')
 const log = require('./log')
 const cluster = require('cluster')
 
@@ -26,7 +27,11 @@ const getAnIPFS = async (config) => {
   }
 
   if (config.ipfs.store === 'fs') {
-    repo = fsRepo(config.ipfs.fs)
+    if (config.clone.concurrency) {
+      repo = clusterRepo(config.ipfs.fs)
+    } else {
+      repo = fsRepo(config.ipfs.fs)
+    }
   }
 
   log('🏁 Starting an IPFS instance')

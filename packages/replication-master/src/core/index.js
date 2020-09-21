@@ -56,15 +56,15 @@ module.exports = async (options) => {
 
   const controller = new AbortController()
 
-  clone(result.app, controller.signal, options)
+  clone(result.app, controller.signal, result.app.locals.ipfs, options)
     .then(() => {}, () => {})
 
   const stop = result.stop
-  const advert = advertise(result.ipfs, options)
+  const stopAdvert = await advertise(result.ipfs, options)
 
   result.stop = () => {
     controller.abort()
-    advert.stop()
+    stopAdvert()
     stop()
   }
 
