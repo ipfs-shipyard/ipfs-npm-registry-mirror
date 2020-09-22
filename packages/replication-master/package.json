@@ -1,6 +1,6 @@
 {
   "name": "ipfs-npm-replication-master",
-  "version": "0.0.19",
+  "version": "1.0.0",
   "description": "Replicates the npm registry and puts it onto IPFS",
   "main": "src/cli/bin.js",
   "bin": {
@@ -34,7 +34,7 @@
     "dotenv": "^8.0.0",
     "fs-extra": "^9.0.0",
     "hat": "~0.0.3",
-    "ipfs-registry-mirror-common": "^2.0.2",
+    "ipfs-registry-mirror-common": "^3.0.0",
     "it-last": "^1.0.2",
     "p-queue": "^6.0.1",
     "yargs": "^16.0.3"
