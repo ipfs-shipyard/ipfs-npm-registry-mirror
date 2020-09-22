@@ -54,7 +54,6 @@ describe('replication', function () {
       externalPort: 443,
       externalProtocol: 'https',
       externalIp: '35.178.192.119',
-      ipfsPass: 'super-secret-super-secret-super-secret',
       cloneConcurrency: 0,
       cloneDelay: 1
     }, config)

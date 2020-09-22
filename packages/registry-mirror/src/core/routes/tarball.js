@@ -18,7 +18,10 @@ module.exports = (config, ipfs, app) => {
       response.statusCode = 200
       response.setHeader('Content-Disposition', `attachment; filename="${path.basename(request.url)}"`)
 
-      for await (const chunk of loadTarball(file, ipfs, config)) {
+      for await (const chunk of loadTarball(file, ipfs, {
+        signal: response.locals.signal,
+        ...config
+      })) {
         response.write(chunk)
       }
 

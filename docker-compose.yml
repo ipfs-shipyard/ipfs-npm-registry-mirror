@@ -57,6 +57,7 @@ services:
       - STORE_S3_PATH=replication-master
       - FOLLOW_SEQ_FILE=seq.txt
       - CLONE_DELAY=30000
+      - CLONE_CONCCURRENCY=0
       - FOLLOW_CONCURRENCY=5
       - REQUEST_CONCURRENCY=5
     logging:

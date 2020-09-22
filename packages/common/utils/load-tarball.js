@@ -28,7 +28,9 @@ const readOrDownloadTarball = async function * (path, ipfs, config) {
     }
   }
 
-  yield * ipfs.cat(new CID(version.dist.cid))
+  yield * ipfs.cat(new CID(version.dist.cid), {
+    signal: config.signal
+  })
 }
 
 const extractPackageDetails = (path) => {

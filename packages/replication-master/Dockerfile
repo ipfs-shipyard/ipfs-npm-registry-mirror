@@ -1,4 +1,4 @@
-FROM node:12
+FROM node:14
 
 EXPOSE 8080
 EXPOSE 4001

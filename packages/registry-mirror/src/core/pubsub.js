@@ -2,6 +2,9 @@
 
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const { default: PQueue } = require('p-queue')
+const uint8ArrayToString = require('uint8arrays/to-string')
+const queue = new PQueue({ concurrency: 1 })
 
 const findMaster = (config) => {
   return request(Object.assign({}, config.request, {
@@ -12,23 +15,26 @@ const findMaster = (config) => {
   }))
 }
 
-const handleUpdate = async (config, ipfs, event) => {
-  if (event.type !== 'update') {
+const handleUpdate = (config, ipfs, event) => {
+  if (event.type !== 'update' || !event.cid) {
     return
   }
 
-  log('🦄 Incoming update')
+  queue.clear()
+  queue.add(async () => {
+    log('🦄 Incoming update')
 
-  try {
-    log(`🐴 Removing old ${config.ipfs.prefix}`)
-    await ipfs.files.rm(config.ipfs.prefix, {
-      recursive: true
-    })
-    log(`🐎 Copying /ipfs/${event.cid} to ${config.ipfs.prefix}`)
-    await ipfs.files.cp(`/ipfs/${event.cid}`, config.ipfs.prefix)
-  } catch (error) {
-    log(`💥 Could not update ${event.module}`, error)
-  }
+    try {
+      log(`🐴 Removing old ${config.ipfs.prefix}`)
+      await ipfs.files.rm(config.ipfs.prefix, {
+        recursive: true
+      })
+      log(`🐎 Copying /ipfs/${event.cid} to ${config.ipfs.prefix}`)
+      await ipfs.files.cp(`/ipfs/${event.cid}`, config.ipfs.prefix)
+    } catch (error) {
+      log(`💥 Could not update ${event.module}`, error)
+    }
+  })
 }
 
 const subscribeToTopic = async (config, ipfs, master) => {
@@ -39,11 +45,7 @@ const subscribeToTopic = async (config, ipfs, master) => {
       return
     }
 
-    try {
-      handleUpdate(config, ipfs, JSON.parse(event.data.toString('utf8')))
-    } catch (error) {
-      log('💥 Error handling module update', error)
-    }
+    handleUpdate(config, ipfs, JSON.parse(uint8ArrayToString(event.data, 'utf8')))
   })
 }
 

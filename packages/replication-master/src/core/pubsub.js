@@ -7,42 +7,41 @@ const log = require('ipfs-registry-mirror-common/utils/log')
 const topic = `ipfs-registry-pubsub-${hat()}`
 let lastBaseDir
 
-const publishIpnsName = async (ipfs, baseDir) => {
-  const previousBaseDir = lastBaseDir
-  lastBaseDir = baseDir
+const publishIpnsName = async (ipfs, cid) => {
+  if (cid.toString() !== lastBaseDir.toString()) {
+    lastBaseDir = cid
 
-  if (baseDir !== previousBaseDir) {
-    log(`🗞️  Publishing IPNS update, base dir is /ipfs/${baseDir}`)
+    log(`🗞️  Publishing IPNS update, base dir is /ipfs/${cid}`)
 
-    await ipfs.name.publish(`/ipfs/${baseDir}`)
+    await ipfs.name.publish(`/ipfs/${cid}`)
 
     log('📰 Published IPNS update')
   }
 }
 
-const publishUpdate = async (ipfs, baseDir) => {
+const publishUpdate = async (ipfs, cid) => {
   await ipfs.pubsub.publish(topic, Buffer.from(JSON.stringify({
     type: 'update',
-    cid: baseDir
+    cid: cid.toString()
   })))
 
-  log(`📰 Broadcast update of ${baseDir}`)
+  log(`📰 Broadcast update of ${cid}`)
 }
 
 const master = async (config, ipfs, emitter) => {
   emitter.on('processed', async () => {
-    const baseDir = await findBaseDir(ipfs, config)
+    const cid = await findBaseDir(ipfs, config)
 
     if (config.clone.publish) {
       try {
-        await publishIpnsName(ipfs, baseDir)
+        await publishIpnsName(ipfs, cid)
       } catch (error) {
         log('💥 Error publishing IPNS name', error)
       }
     }
 
     try {
-      await publishUpdate(ipfs, baseDir)
+      await publishUpdate(ipfs, cid)
     } catch (error) {
       log('💥 Error publishing to topic', error)
     }

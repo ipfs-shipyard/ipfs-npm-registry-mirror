@@ -18,10 +18,6 @@ const AbortController = require('abort-controller')
 module.exports = async (options) => {
   options = config(options)
 
-  if (!options.ipfs.pass) {
-    throw new Error('Please supply a keystore password with the --ipfs-pass option')
-  }
-
   const result = await server(options, async (app, ipfs) => {
     const res = await replicationMaster(options, ipfs, app)
 

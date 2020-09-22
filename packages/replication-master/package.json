@@ -25,7 +25,7 @@
   "dependencies": {
     "@achingbrain/follow-registry": "^5.0.0",
     "abort-controller": "^3.0.0",
-    "aws-sdk": "^2.402.0",
+    "aws-sdk": "^2.756.0",
     "cids": "^1.0.0",
     "debug": "^4.0.1",
     "delay": "^4.3.0",

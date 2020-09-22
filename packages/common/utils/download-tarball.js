@@ -55,12 +55,13 @@ const downloadFile = async (url, shasum, ipfs, options) => {
         wrapWithDirectory: false,
         pin: options.clone.pin,
         version: 1,
-        rawLeaves: true
+        rawLeaves: true,
+        signal: options.signal
       })
 
       log(`✅ Downloaded ${url} in ${Date.now() - start}ms`)
 
-      await validateShasum(cid, shasum, url, ipfs)
+      await validateShasum(cid, shasum, url, ipfs, options)
 
       log(`🌍 Added ${url} to IPFS with CID ${cid} in ${Date.now() - start}ms`)
 
@@ -73,12 +74,14 @@ const downloadFile = async (url, shasum, ipfs, options) => {
   throw new Error(`💥 ${options.request.retries} retries exceeded while downloading ${url}`)
 }
 
-const validateShasum = async (cid, shasum, url, ipfs) => {
+const validateShasum = async (cid, shasum, url, ipfs, options) => {
   const hashStart = Date.now()
   const hash = crypto.createHash('sha1')
   hash.on('error', () => {})
 
-  for await (const buf of ipfs.cat(cid)) {
+  for await (const buf of ipfs.cat(cid, {
+    signal: options.signal
+  })) {
     hash.update(buf)
   }
 

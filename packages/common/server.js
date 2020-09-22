@@ -3,6 +3,7 @@
 const express = require('express')
 const once = require('once')
 const {
+  abortableRequest,
   errorLog,
   favicon,
   requestLog,
@@ -23,12 +24,12 @@ module.exports = async (config, handlers = async () => {}) => {
   log('🛫 Starting server')
 
   const app = express()
-  app.use(requestLog)
 
+  app.use(requestLog)
   app.use(metrics)
   app.use('/-/metrics', metrics.metricsMiddleware)
-
   app.use(cors)
+  app.use(abortableRequest)
 
   app.get('/favicon.ico', favicon(config, ipfs, app))
   app.get('/favicon.png', favicon(config, ipfs, app))

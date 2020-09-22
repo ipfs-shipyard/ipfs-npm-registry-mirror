@@ -22,7 +22,7 @@
     "cids": "^1.0.0",
     "datastore-fs": "^2.0.1",
     "datastore-level": "^2.0.0",
-    "datastore-s3": "^2.0.0",
+    "datastore-s3": "^3.0.0",
     "debug": "^4.0.1",
     "delay": "^4.3.0",
     "express": "^4.16.3",

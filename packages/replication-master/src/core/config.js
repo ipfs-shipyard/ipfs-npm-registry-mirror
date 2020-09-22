@@ -5,7 +5,7 @@ const option = require('ipfs-registry-mirror-common/utils/option')
 
 module.exports = (overrides = {}) => {
   return {
-    registries: [option(process.env.REGISTRY, overrides.registry)],
+    registries: (overrides.registries || []).concat(option(process.env.REGISTRY, overrides.registry)).filter(Boolean),
     registryUpdateInterval: option(process.env.REGISTRY_UPDATE_INTERVAL, overrides.registryUpdateInterval),
     registryReadTimeout: option(Number(process.env.REGISTRY_READ_TIMEOUT), overrides.registryReadTimeout),
 

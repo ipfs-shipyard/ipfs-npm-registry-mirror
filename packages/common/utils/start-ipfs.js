@@ -54,8 +54,10 @@ const startIpfs = async (config) => {
     const node = await IPFS.create({
       repo: config.ipfs.repo,
       EXPERIMENTAL: {
-        pubsub: true,
         sharding: true
+      },
+      pubsub: {
+        enabled: true
       },
       preload: {
         enabled: false

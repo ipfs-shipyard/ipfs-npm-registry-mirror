@@ -22,11 +22,14 @@
   },
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
+    "aws-sdk": "^2.756.0",
     "debug": "^4.0.1",
     "dnscache": "^1.0.1",
     "dotenv": "^8.0.0",
     "express-http-proxy": "^1.4.0",
     "ipfs-registry-mirror-common": "^2.0.2",
+    "p-queue": "^6.0.1",
+    "uint8arrays": "^1.1.0",
     "yargs": "^16.0.3"
   },
   "devDependencies": {

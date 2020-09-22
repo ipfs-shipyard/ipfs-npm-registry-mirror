@@ -16,7 +16,10 @@ module.exports = (config, ipfs, app) => {
     debug(`Loading packument for ${moduleName}`)
 
     try {
-      let packument = await loadPackument(moduleName, ipfs, config)
+      let packument = await loadPackument(moduleName, ipfs, {
+        signal: response.locals.signal,
+        ...config
+      })
       packument = replaceTarballUrls(packument, config)
 
       response.statusCode = 200
