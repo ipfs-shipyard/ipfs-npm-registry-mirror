@@ -22,29 +22,27 @@
   },
   "homepage": "https://github.com/ipfs-shipyard/ipfs-npm-registry-mirror#readme",
   "dependencies": {
-    "cids": "~0.7.1",
+    "aws-sdk": "^2.756.0",
     "debug": "^4.0.1",
     "dnscache": "^1.0.1",
     "dotenv": "^8.0.0",
     "express-http-proxy": "^1.4.0",
     "ipfs-registry-mirror-common": "^2.0.2",
-    "promise-delay": "^2.1.0",
-    "promise-retry": "^1.1.1",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2",
-    "yargs": "^13.2.4"
+    "p-queue": "^6.0.1",
+    "uint8arrays": "^1.1.0",
+    "yargs": "^16.0.3"
   },
   "devDependencies": {
-    "aegir": "^19.0.3",
+    "aegir": "^26.0.0",
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
     "hat": "~0.0.3",
-    "ipfs-unixfs": "~0.1.16",
-    "ipld-dag-pb": "~0.17.4",
+    "ipfs-unixfs": "^2.0.3",
+    "ipld-dag-pb": "^0.20.0",
     "mock-require": "^3.0.2",
-    "sinon": "^7.2.2"
+    "sinon": "^9.0.2"
   },
   "optionalDependencies": {
-    "@achingbrain/appmetrics-dash": "4.0.2"
+    "appmetrics-dash": "^5.3.0"
   }
 }

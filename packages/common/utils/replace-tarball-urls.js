@@ -2,7 +2,7 @@
 
 const getExternalUrl = require('./get-external-url')
 
-const replaceTarballUrls = (config, pkg) => {
+const replaceTarballUrls = (pkg, config) => {
   const prefix = getExternalUrl(config)
   const packageName = pkg.name
   const moduleName = packageName.startsWith('@') ? packageName.split('/').pop() : packageName
@@ -11,6 +11,10 @@ const replaceTarballUrls = (config, pkg) => {
   Object.keys(pkg.versions || {})
     .forEach(versionNumber => {
       const version = pkg.versions[versionNumber]
+
+      if (version.dist.source) {
+        return
+      }
 
       version.dist.source = version.dist.tarball
       version.dist.tarball = `${prefix}/${packageName}/-/${moduleName}-${versionNumber}.tgz`

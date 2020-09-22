@@ -2,30 +2,35 @@
 
 const saveTarball = require('./save-tarball')
 const CID = require('cids')
-const loadManifest = require('../utils/load-manifest')
+const loadPackument = require('./load-packument')
 
-const readOrDownloadTarball = async (config, ipfs, path) => {
+const readOrDownloadTarball = async function * (path, ipfs, config) {
   const {
     packageName,
     packageVersion
   } = extractPackageDetails(path)
 
-  let manifest = await loadManifest(config, ipfs, packageName)
-  let version = manifest.versions[packageVersion]
+  let packument = await loadPackument(packageName, ipfs, config)
+  let version = packument.versions[packageVersion]
 
   if (!version) {
-    throw new Error(`Could not find version ${packageName}@${packageVersion} in available versions ${Object.keys(manifest.versions)}`)
+    throw new Error(`Could not find version ${packageName}@${packageVersion} in available versions ${Object.keys(packument.versions)}`)
   }
 
   if (!version.dist.cid) {
-    return saveTarball(config, manifest.name, packageVersion, ipfs)
+    await saveTarball(packument.name, packageVersion, ipfs, config)
+
+    packument = await loadPackument(packageName, ipfs, config)
+    version = packument.versions[packageVersion]
+
+    if (!version.dist.cid) {
+      throw new Error(`CID for ${packageName}@${packageVersion} missing after download`)
+    }
   }
 
-  if (!version.dist.cid) {
-    throw new Error(`CID for ${packageName}@${packageVersion} missing after download`)
-  }
-
-  return ipfs.catReadableStream(new CID(version.dist.cid))
+  yield * ipfs.cat(new CID(version.dist.cid), {
+    signal: config.signal
+  })
 }
 
 const extractPackageDetails = (path) => {

@@ -5,7 +5,7 @@ const option = require('ipfs-registry-mirror-common/utils/option')
 
 module.exports = (overrides = {}) => {
   return {
-    registry: option(process.env.REGISTRY, overrides.registry),
+    registries: (overrides.registries || []).concat(option(process.env.REGISTRY, overrides.registry)).filter(Boolean),
     registryUpdateInterval: option(process.env.REGISTRY_UPDATE_INTERVAL, overrides.registryUpdateInterval),
     registryReadTimeout: option(Number(process.env.REGISTRY_READ_TIMEOUT), overrides.registryReadTimeout),
 
@@ -47,17 +47,18 @@ module.exports = (overrides = {}) => {
 
     follow: {
       ua: option(process.env.FOLLOW_USER_AGENT, overrides.followUserAgent),
-      skim: option(process.env.FOLLOW_SKIM, overrides.followSkim),
       registry: option(process.env.FOLLOW_REGISTTRY, overrides.followRegistry),
+      replicator: option(process.env.FOLLOW_REPLICATOR, overrides.followReplicator),
       concurrency: option(Number(process.env.FOLLOW_CONCURRENCY), overrides.followConcurrency),
-      seqFile: option(process.env.FOLLOW_SEQ_FILE, overrides.followSeqFile),
-      inactivity_ms: option(process.env.FOLLOW_INACTIVITY_MS, overrides.followInactivityMs)
+      inactivityTimeout: option(process.env.FOLLOW_INACTIVITY_MS, overrides.followInactivityMs),
+      seqFile: option(process.env.FOLLOW_SEQ_FILE, overrides.followSeqFile)
     },
 
     clone: {
       delay: option(Number(process.env.CLONE_DELAY), overrides.cloneDelay),
       pin: option(Number(process.env.CLONE_PIN), overrides.clonePin),
-      publish: option(process.env.CLONE_PUBLISH, overrides.clonePublish)
+      publish: option(process.env.CLONE_PUBLISH, overrides.clonePublish),
+      concurrency: parseInt(option(process.env.CLONE_CONCCURRENCY, overrides.cloneConcurrency))
     },
 
     request: {

@@ -1,27 +1,32 @@
 'use strict'
 
 const debug = require('debug')('ipfs:registry-mirror:handlers:manifest')
-const loadManifest = require('ipfs-registry-mirror-common/utils/load-manifest')
+const loadPackument = require('ipfs-registry-mirror-common/utils/load-packument')
 const sanitiseName = require('ipfs-registry-mirror-common/utils/sanitise-name')
 const lol = require('ipfs-registry-mirror-common/utils/error-message')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const replaceTarballUrls = require('ipfs-registry-mirror-common/utils/replace-tarball-urls')
 
 module.exports = (config, ipfs, app) => {
   return async (request, response, next) => {
     debug(`Requested ${request.path}`)
 
-    let moduleName = sanitiseName(request.path)
+    const moduleName = sanitiseName(request.path)
 
-    debug(`Loading manifest for ${moduleName}`)
+    debug(`Loading packument for ${moduleName}`)
 
     try {
-      const manifest = await loadManifest(config, ipfs, moduleName)
+      let packument = await loadPackument(moduleName, ipfs, {
+        signal: response.locals.signal,
+        ...config
+      })
+      packument = replaceTarballUrls(packument, config)
 
       response.statusCode = 200
       response.setHeader('Content-type', 'application/json; charset=utf-8')
-      response.send(JSON.stringify(manifest, null, request.query.format === undefined ? 0 : 2))
+      response.send(JSON.stringify(packument, null, 2))
     } catch (error) {
-      log(`💥 Could not load manifest for ${moduleName}`, error)
+      log(`💥 Could not load packument for ${moduleName}`, error)
 
       if (error.message.includes('Not found')) {
         response.statusCode = 404

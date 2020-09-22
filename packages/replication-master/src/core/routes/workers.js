@@ -2,7 +2,7 @@
 
 const log = require('ipfs-registry-mirror-common/utils/log')
 
-let workers = []
+const workers = []
 let initialised = 0
 
 module.exports = {

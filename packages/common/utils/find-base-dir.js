@@ -2,15 +2,13 @@
 
 const log = require('./log')
 
-const findBaseDir = async (config, ipfs) => {
+const findBaseDir = async (ipfs, config) => {
   try {
-    const stats = await ipfs.files.stat(config.ipfs.prefix, {
-      hash: true
-    })
+    const stats = await ipfs.files.stat(config.ipfs.prefix)
 
-    log(`🌿 Root dir ${config.ipfs.prefix} is ${stats.hash}`)
+    log(`🌿 Root dir ${config.ipfs.prefix} is ${stats.cid}`)
 
-    return stats.hash
+    return stats.cid
   } catch (error) {
     if (error.message.includes('does not exist')) {
       log(`🐺 Creating base dir ${config.ipfs.prefix}`)
@@ -20,7 +18,7 @@ const findBaseDir = async (config, ipfs) => {
       })
     }
 
-    return findBaseDir(config, ipfs)
+    return findBaseDir(ipfs, config)
   }
 }
 

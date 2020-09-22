@@ -13,8 +13,8 @@ const expect = require('chai')
   .use(require('dirty-chai'))
   .expect
 const hat = require('hat')
-const saveManifest = require('ipfs-registry-mirror-common/utils/save-manifest')
-const delay = require('promise-delay')
+const savePackument = require('ipfs-registry-mirror-common/utils/save-packument')
+const delay = require('delay')
 const request = require('ipfs-registry-mirror-common/utils/retry-request')
 
 const baseDir = '/commons-registry-clone-test'
@@ -23,7 +23,7 @@ describe('replication', function () {
   this.timeout(120000)
 
   let replicationMaster
-  let upstreamModules = {}
+  const upstreamModules = {}
   let replicationMasterUrl
   let skim
   let config
@@ -32,7 +32,9 @@ describe('replication', function () {
     return Object.assign({}, {
       httpProtocol: 'http',
       httpHost: '127.0.0.1',
-      registry: `http://127.0.0.1:${registry.address().port}`,
+      registries: [
+        `http://127.0.0.1:${registry.address().port}`
+      ],
       requestRetries: 5,
       requestRetryDelay: 100,
       requestConcurrency: 5,
@@ -42,15 +44,18 @@ describe('replication', function () {
       ipfsRepo: path.join(os.tmpdir(), hat()),
       ipfsFlush: true,
       registryUpdateInterval: 0,
-      followSkim: `http://127.0.0.1:${skim.address().port}`,
+      followReplicator: `http://127.0.0.1:${skim.address().port}/_changes`,
       followRegistry: `http://127.0.0.1:${registry.address().port}`,
       followConcurrency: 1,
       followUserAgent: 'test UA',
       followSeqFile: path.join(os.tmpdir(), hat()),
+      followInactivityMs: 60000,
       externalHost: 'replication.registry.ipfs.io',
       externalPort: 443,
       externalProtocol: 'https',
-      externalIp: '35.178.192.119'
+      externalIp: '35.178.192.119',
+      cloneConcurrency: 0,
+      cloneDelay: 1
     }, config)
   }
 
@@ -116,7 +121,7 @@ describe('replication', function () {
         versions: {
           [module.version]: {
             dist: {
-              tarball: `${config.registry}${tarball.path}`,
+              tarball: `${config.registries[0]}${tarball.path}`,
               shasum: '3f9f726832b39c2cc7ac515c8a6c97b94b608b0e'
             }
           }
@@ -127,11 +132,9 @@ describe('replication', function () {
     skim.publish(data, tarball)
 
     return new Promise((resolve, reject) => {
-      replicationMaster.app.once('processed', (event) => {
+      replicationMaster.app.once('processed', (name) => {
         try {
-          expect(event.name).to.equal(module.name)
-          expect(Object.keys(event.versions).length).to.equal(1)
-          expect(event.versions[module.version].dist.tarball).to.equal(`${config.registry}${tarball.path}`)
+          expect(name).to.equal(module.name)
         } catch (error) {
           return reject(error)
         }
@@ -167,7 +170,7 @@ describe('replication', function () {
         versions: {
           [module1.version]: {
             dist: {
-              tarball: `${config.registry}${tarball1.path}`,
+              tarball: `${config.registries[0]}${tarball1.path}`,
               shasum: '3f9f726832b39c2cc7ac515c8a6c97b94b608b0e'
             }
           }
@@ -182,7 +185,7 @@ describe('replication', function () {
         versions: {
           [module2.version]: {
             dist: {
-              tarball: `${config.registry}${tarball2.path}`,
+              tarball: `${config.registries[0]}${tarball2.path}`,
               shasum: '3f9f726832b39c2cc7ac515c8a6c97b94b608b0e'
             }
           }
@@ -196,17 +199,15 @@ describe('replication', function () {
     let sawModule1Update = false
 
     return new Promise((resolve, reject) => {
-      replicationMaster.app.on('processed', (event) => {
-        if (event.name === module1.name) {
+      replicationMaster.app.on('processed', (name) => {
+        if (name === module1.name) {
           sawModule1Update = true
           return
         }
 
         try {
           expect(sawModule1Update).to.be.true()
-          expect(event.name).to.equal(module2.name)
-          expect(Object.keys(event.versions).length).to.equal(1)
-          expect(event.versions[module2.version].dist.tarball).to.equal(`${config.registry}${tarball2.path}`)
+          expect(name).to.equal(module2.name)
         } catch (error) {
           return reject(error)
         }
@@ -329,7 +330,7 @@ describe('replication', function () {
         versions: {
           [module.version]: {
             dist: {
-              tarball: `${config.registry}${tarball.path}`,
+              tarball: `${config.registries[0]}${tarball.path}`,
               shasum: '3f9f726832b39c2cc7ac515c8a6c97b94b608b0e'
             }
           }
@@ -344,7 +345,7 @@ describe('replication', function () {
         '1.0.0': {
           dist: {
             tarball: `${config.externalProtocol}://${config.externalHost}:${config.externalPort}${tarball.path}`,
-            source: `${config.registry}${tarball.path}`,
+            source: `${config.registries[0]}${tarball.path}`,
             cid: 'QmZVQm5euZa69LtUFt8HuuBPSpLYMxcxACh6F5M8ZqpbR9',
             shasum: '123'
           }
@@ -352,7 +353,7 @@ describe('replication', function () {
       }
     }
 
-    await saveManifest(manifest, replicationMaster.app.locals.ipfs, {
+    await savePackument(manifest, replicationMaster.app.locals.ipfs, {
       ipfs: {
         prefix: baseDir,
         flush: true
@@ -362,11 +363,9 @@ describe('replication', function () {
     skim.publish(data)
 
     return new Promise((resolve, reject) => {
-      replicationMaster.app.once('processed', (event) => {
+      replicationMaster.app.once('processed', (name) => {
         try {
-          expect(event.name).to.equal(module.name)
-          expect(Object.keys(event.versions).length).to.equal(1)
-          expect(event.versions[module.version].dist.tarball).to.equal(`${config.registry}${tarball.path}`)
+          expect(name).to.equal(module.name)
         } catch (error) {
           return reject(error)
         }

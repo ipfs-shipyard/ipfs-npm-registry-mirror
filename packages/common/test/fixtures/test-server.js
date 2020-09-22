@@ -1,57 +1,59 @@
 'use strict'
 
 const http = require('http')
-const IPFSFactory = require('ipfsd-ctl').create()
+const IPFSFactory = require('ipfsd-ctl').createFactory({
+  type: 'proc',
+  ipfsHttpModule: require('ipfs-http-client'),
+  ipfsModule: require('ipfs'),
+  test: true,
+  disposable: true
+})
 
 let testServers = []
 
 module.exports = {
-  createTestServer: (resources) => {
-    return new Promise((resolve, reject) => {
-      const server = http.createServer((request, response) => {
-        let url = request.url
+  createTestServer: async (resources) => {
+    const server = http.createServer((request, response) => {
+      let url = request.url
 
-        if (url.includes('?')) {
-          url = url.split('?')[0]
+      if (url.includes('?')) {
+        url = url.split('?')[0]
+      }
+
+      if (resources[url]) {
+        if (typeof resources[url] === 'function') {
+          return resources[url](request, response)
         }
 
-        if (resources[url]) {
-          if (typeof resources[url] === 'function') {
-            return resources[url](request, response)
-          }
+        response.statusCode = 200
+        return response.end(resources[url])
+      }
 
-          response.statusCode = 200
-          return response.end(resources[url])
-        }
+      response.statusCode = 404
+      response.end('404')
+    })
 
-        response.statusCode = 404
-        response.end('404')
-      })
-
+    await new Promise((resolve, reject) => {
       server.listen((error) => {
         if (error) {
           return reject(error)
         }
 
-        testServers.push(server)
-
-        IPFSFactory.spawn({
-          args: ['--enable-pubsub-experiment']
-        }, async (err, ipfsd) => {
-          if (err) {
-            return reject(error)
-          }
-
-          server.ipfs = ipfsd.api
-
-          if (typeof resources === 'function') {
-            resources = await resources(server)
-          }
-
-          resolve(server)
-        })
+        resolve()
       })
     })
+
+    testServers.push(server)
+
+    const node = await IPFSFactory.spawn()
+
+    server.ipfs = node.api
+
+    if (typeof resources === 'function') {
+      resources = await resources(server)
+    }
+
+    return server
   },
 
   destroyTestServers: () => {

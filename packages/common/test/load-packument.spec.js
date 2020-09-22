@@ -22,30 +22,30 @@ const pkg = (name) => {
   }
 }
 
-describe('load-manifest', () => {
-  let loadManifest
-  let saveManifest
+describe('load-packument', () => {
+  let loadPackument
+  let savePackument
   let request
   let ipfs
   let config
 
-  let existentPackage = pkg(`i-exist-${hat()}`)
-  let nonExistentPackage = pkg(`i-do-not-exist-${hat()}`)
-  let newPackage = pkg(`i-am-new-${hat()}`)
-  let updatedPackage = pkg(`i-have-new-${hat()}`)
-  let newVersionOfUpdatedPackage = pkg(updatedPackage.name)
+  const existentPackage = pkg(`i-exist-${hat()}`)
+  const nonExistentPackage = pkg(`i-do-not-exist-${hat()}`)
+  const newPackage = pkg(`i-am-new-${hat()}`)
+  const updatedPackage = pkg(`i-have-new-${hat()}`)
+  const newVersionOfUpdatedPackage = pkg(updatedPackage.name)
 
   beforeEach(() => {
     config = {
       registryUpdateInterval: 0,
       registryReadTimeout: 10000,
-      registry: `http://foo`,
+      registries: [
+        'http://foo'
+      ],
       ipfs: {
         prefix: `/registry-prefix-${hat()}`
       },
-      request: {
-
-      },
+      request: {},
       http: {
         host: 'localhost',
         port: 8080,
@@ -54,16 +54,17 @@ describe('load-manifest', () => {
     }
 
     request = sinon.stub()
-    saveManifest = sinon.stub()
+    savePackument = sinon.stub()
 
     mock('../utils/retry-request', request)
-    mock('../utils/save-manifest', saveManifest)
+    mock('../utils/save-packument', savePackument)
 
-    loadManifest = mock.reRequire('../utils/load-manifest')
+    loadPackument = mock.reRequire('../utils/load-packument')
 
     ipfs = {
       files: {
-        read: sinon.stub()
+        read: sinon.stub(),
+        write: sinon.stub()
       }
     }
   })
@@ -72,9 +73,11 @@ describe('load-manifest', () => {
     mock.stopAll()
   })
 
-  it('should load a manifest from ipfs', async () => {
+  it('should load a packument from ipfs', async () => {
     ipfs.files.read.withArgs(`${config.ipfs.prefix}/${existentPackage.name}`)
-      .resolves(JSON.stringify(existentPackage))
+      .returns([
+        Buffer.from(JSON.stringify(existentPackage))
+      ])
 
     request
       .withArgs({
@@ -83,32 +86,34 @@ describe('load-manifest', () => {
       })
       .resolves(existentPackage)
 
-    const result = await loadManifest(config, ipfs, existentPackage.name)
+    const result = await loadPackument(existentPackage.name, ipfs, config)
 
     expect(result).to.deep.equal(existentPackage)
-    expect(saveManifest.called).to.be.false()
+    expect(savePackument.called).to.be.false()
     expect(request.called).to.be.true()
   })
 
-  it('should load a manifest from npm when not found in mfs', async () => {
+  it('should load a packument from npm when not found in mfs', async () => {
     ipfs.files.read.withArgs(`${config.ipfs.prefix}/${newPackage.name}`)
-      .rejects(new Error('file does not exist'))
+      .returns(async function * () { // eslint-disable-line require-yield,require-await
+        throw new Error('file does not exist')
+      }())
 
     request
       .withArgs({
-        uri: `${config.registry}/${newPackage.name}`,
+        uri: `${config.registries[0]}/${newPackage.name}`,
         json: true
       })
       .resolves(newPackage)
 
-    const result = await loadManifest(config, ipfs, newPackage.name)
+    const result = await loadPackument(newPackage.name, ipfs, config)
 
     expect(result).to.deep.equal(newPackage)
-    expect(saveManifest.called).to.be.true()
+    expect(savePackument.called).to.be.true()
     expect(request.called).to.be.true()
   })
 
-  it('should favour an updated manifest from npm', async () => {
+  it('should favour an updated packument from npm', async () => {
     updatedPackage.versions = {
       '0.0.1': {
         dist: {
@@ -133,71 +138,79 @@ describe('load-manifest', () => {
     }
 
     ipfs.files.read.withArgs(`${config.ipfs.prefix}/${updatedPackage.name}`)
-      .resolves(JSON.stringify(updatedPackage))
+      .returns(async function * () { // eslint-disable-line require-await
+        yield Buffer.from(JSON.stringify(updatedPackage))
+      }())
 
     request
       .withArgs({
-        uri: `${config.registry}/${updatedPackage.name}`,
+        uri: `${config.registries[0]}/${updatedPackage.name}`,
         json: true
       })
       .resolves(JSON.parse(JSON.stringify(newVersionOfUpdatedPackage)))
 
-    const result = await loadManifest(config, ipfs, updatedPackage.name)
+    const result = await loadPackument(updatedPackage.name, ipfs, config)
 
     expect(result.versions['0.0.1'].dist.cid).to.equal(updatedPackage.versions['0.0.1'].dist.cid)
-    expect(result.versions['0.0.2'].dist.source).to.equal(newVersionOfUpdatedPackage.versions['0.0.2'].dist.tarball)
+    expect(result.versions['0.0.2'].dist.tarball).to.equal(newVersionOfUpdatedPackage.versions['0.0.2'].dist.tarball)
 
-    expect(saveManifest.called).to.be.true()
+    expect(savePackument.called).to.be.true()
     expect(request.called).to.be.true()
   })
 
   it('should explode when a module does not exist', async () => {
     ipfs.files.read.withArgs(`${config.ipfs.prefix}/${nonExistentPackage.name}`)
-      .rejects(new Error('file does not exist'))
+      .returns(async function * () { // eslint-disable-line require-yield,require-await
+        throw new Error('file does not exist')
+      }())
 
     request
       .withArgs({
-        uri: `${config.registry}/${nonExistentPackage.name}`,
+        uri: `${config.registries[0]}/${nonExistentPackage.name}`,
         json: true
       })
       .rejects(new Error('404'))
 
     try {
-      await loadManifest(config, ipfs, nonExistentPackage.name)
-      throw new Error('Expected loadManifest to throw')
+      await loadPackument(nonExistentPackage.name, ipfs, config)
+      throw new Error('Expected loadPackument to throw')
     } catch (error) {
       expect(error.message).to.include('not found')
     }
   })
 
   it('should download from a backup registry', async () => {
-    const options = Object.assign({}, config, {
-      npm: {
-        registry: 'https://regregreg.npm.com'
-      }
-    })
+    const options = {
+      ...config,
+      registries: [
+        ...config.registries,
+        'https://regregreg.npm.com'
+      ]
+    }
 
     ipfs.files.read.withArgs(`${options.ipfs.prefix}/${existentPackage.name}`)
-      .rejects(new Error('file does not exist'))
+      .returns(async function * () { // eslint-disable-line require-yield,require-await
+        throw new Error('file does not exist')
+      }())
 
     request
       .withArgs({
-        uri: `${options.registry}/${existentPackage.name}`,
+        uri: `${options.registries[0]}/${existentPackage.name}`,
         json: true
       })
       .rejects(new Error('404'))
 
     request
       .withArgs({
-        uri: `${options.npm.registry}/${existentPackage.name}`,
+        uri: `${options.registries[1]}/${existentPackage.name}`,
         json: true
       })
       .resolves(existentPackage)
 
-    const result = await loadManifest(options, ipfs, existentPackage.name)
+    const result = await loadPackument(existentPackage.name, ipfs, options)
 
     expect(result).to.deep.equal(existentPackage)
-    expect(saveManifest.called).to.be.true()
+    expect(savePackument.called).to.be.true()
     expect(request.called).to.be.true()
   })
 })

@@ -23,13 +23,23 @@ describe('replace-tarball-urls', () => {
           dist: {
             tarball: 'a-tarball'
           }
+        },
+        '2.0.0': {
+          dist: {
+            source: 'original-tarball',
+            tarball: 'replaced-tarball'
+          }
         }
       }
     }
 
-    const result = replaceTarballUrls(config, JSON.parse(JSON.stringify(pkg)))
+    const result = replaceTarballUrls(JSON.parse(JSON.stringify(pkg)), config)
 
     expect(result.versions['1.0.0'].dist.source).to.equal(pkg.versions['1.0.0'].dist.tarball)
     expect(result.versions['1.0.0'].dist.tarball).to.equal(`${config.external.protocol}://${config.external.host}/${pkg.name}/-/${pkg.name}-1.0.0.tgz`)
+
+    // should not change anything if source is already present
+    expect(result.versions['2.0.0'].dist.source).to.equal(pkg.versions['2.0.0'].dist.source)
+    expect(result.versions['2.0.0'].dist.tarball).to.equal(pkg.versions['2.0.0'].dist.tarball)
   })
 })

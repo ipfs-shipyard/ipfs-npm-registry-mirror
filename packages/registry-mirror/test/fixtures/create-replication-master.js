@@ -8,7 +8,7 @@ const {
 const createReplicationMaster = async () => {
   const topic = `topic-${hat()}`
 
-  let replicationMaster = await createTestServer(async server => {
+  const replicationMaster = await createTestServer(async server => {
     return {
       '/': JSON.stringify({
         ipfs: await server.ipfs.id(),
@@ -25,6 +25,9 @@ const createReplicationMaster = async () => {
   replicationMaster.config = {
     pubsub: {
       topic
+    },
+    ipfs: {
+      prefix: '/reg-mas-root'
     }
   }
 

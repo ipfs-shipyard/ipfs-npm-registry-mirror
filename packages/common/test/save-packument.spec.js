@@ -6,9 +6,9 @@ const expect = require('chai')
   .use(require('dirty-chai'))
   .expect
 const hat = require('hat')
-const saveManifest = require('../utils/save-manifest')
+const savePackument = require('../utils/save-packument')
 
-describe('save-manifest', () => {
+describe('save-packument', () => {
   let ipfs
   let config
 
@@ -27,7 +27,7 @@ describe('save-manifest', () => {
     }
   })
 
-  it('should save a manifest to ipfs', async () => {
+  it('should save a packument to ipfs', async () => {
     const pkg = {
       name: `module-${hat()}`
     }
@@ -35,7 +35,7 @@ describe('save-manifest', () => {
     ipfs.files.write.withArgs(`${config.ipfs.prefix}/${pkg.name}`)
       .resolves()
 
-    await saveManifest(pkg, ipfs, config)
+    await savePackument(pkg, ipfs, config)
 
     expect(ipfs.files.write.called).to.be.true()
   })
@@ -46,8 +46,8 @@ describe('save-manifest', () => {
     }
 
     try {
-      await saveManifest(pkg, ipfs, config)
-      throw new Error('Expected saveManifest to throw')
+      await savePackument(pkg, ipfs, config)
+      throw new Error('Expected savePackument to throw')
     } catch (error) {
       expect(error.message).to.contain('No name found')
       expect(ipfs.files.write.called).to.be.false()

@@ -3,6 +3,7 @@
 const express = require('express')
 const once = require('once')
 const {
+  abortableRequest,
   errorLog,
   favicon,
   requestLog,
@@ -20,15 +21,15 @@ const getAnIPFS = require('./utils/get-an-ipfs')
 module.exports = async (config, handlers = async () => {}) => {
   const ipfs = await getAnIPFS(config)
 
-  log(`🛫 Starting server`)
+  log('🛫 Starting server')
 
   const app = express()
-  app.use(requestLog)
 
+  app.use(requestLog)
   app.use(metrics)
   app.use('/-/metrics', metrics.metricsMiddleware)
-
   app.use(cors)
+  app.use(abortableRequest)
 
   app.get('/favicon.ico', favicon(config, ipfs, app))
   app.get('/favicon.png', favicon(config, ipfs, app))
@@ -65,7 +66,7 @@ module.exports = async (config, handlers = async () => {}) => {
       })
     })
 
-    let server = app.listen(config.http.port, callback)
+    const server = app.listen(config.http.port, callback)
     server.once('error', callback)
 
     app.locals.ipfs = ipfs

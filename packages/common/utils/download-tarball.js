@@ -1,14 +1,11 @@
 'use strict'
 
-const debug = require('debug')('ipfs:registry-mirror:replicate:save-tarball')
+const debug = require('debug')('ipfs:registry-common:utils:download-tarball')
 const crypto = require('crypto')
-const { default: PQueue } = require('p-queue')
 const log = require('ipfs-registry-mirror-common/utils/log')
 const { urlSource } = require('ipfs')
 
-let queue
-
-const saveTarball = async (packument, versionNumber, ipfs, options) => {
+const downloadTarball = async (packument, versionNumber, ipfs, options) => {
   const version = packument.versions[versionNumber]
 
   validate(version, versionNumber, packument.name)
@@ -20,7 +17,9 @@ const saveTarball = async (packument, versionNumber, ipfs, options) => {
   }
 
   const start = Date.now()
+
   const cid = await downloadFile(version.dist.tarball, version.dist.shasum, ipfs, options)
+
   version.cid = `/ipfs/${cid}`
 
   log(`🏄‍♀️ Added ${version.tarball} with CID ${version.cid} in ${Date.now() - start}ms`)
@@ -56,7 +55,8 @@ const downloadFile = async (url, shasum, ipfs, options) => {
         wrapWithDirectory: false,
         pin: options.clone.pin,
         version: 1,
-        rawLeaves: true
+        rawLeaves: true,
+        signal: options.signal
       })
 
       log(`✅ Downloaded ${url} in ${Date.now() - start}ms`)
@@ -67,7 +67,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
 
       return cid
     } catch (err) {
-      log(`💥 Downloading tarballs failed: ${err.message} ${err.stack}`)
+      log(`💥 Download failed: ${err.message}`)
     }
   }
 
@@ -94,23 +94,4 @@ const validateShasum = async (cid, shasum, url, ipfs, options) => {
   log(`🙆 Checked shasum of ${url} in ${Date.now() - hashStart}ms`)
 }
 
-const saveTarballs = (packument, ipfs, options) => {
-  if (!queue) {
-    queue = new PQueue({ concurrency: options.request.concurrency })
-  }
-
-  return Promise.all(
-    Object.keys(packument.versions || {})
-      .map(versionNumber => {
-        return queue.add(async () => {
-          try {
-            await saveTarball(packument, versionNumber, ipfs, options)
-          } catch (err) {
-            log(`💥 Error storing tarball ${packument.name} ${versionNumber}`, err)
-          }
-        })
-      })
-  )
-}
-
-module.exports = saveTarballs
+module.exports = downloadTarball

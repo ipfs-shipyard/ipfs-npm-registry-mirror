@@ -2,11 +2,27 @@
 
 const S3 = require('aws-sdk/clients/s3')
 const log = require('ipfs-registry-mirror-common/utils/log')
+const fs = require('fs-extra')
 
 module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAccessKey } }, follow: { seqFile } }) => {
   if (store !== 's3') {
-    log('📁 Using fs sequence file')
-    return undefined
+    log('📁 Using fs sequence file', seqFile)
+    return {
+      async read () { // eslint-disable-line require-await
+        try {
+          return fs.readFile(seqFile, 'utf8')
+        } catch (err) {
+          log(err)
+          return 0
+        }
+      },
+      async write (data) {
+        await fs.writeFile(seqFile, data, 'utf8')
+      },
+      async reset () {
+        await fs.unlink(seqFile)
+      }
+    }
   }
 
   log('☁️  Using s3 sequence file')
@@ -21,30 +37,31 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
   })
 
   return {
-    read: (callback) => {
-      s3.getObject({
-        Key: seqFile
-      }, (err, data) => {
-        if (err) {
-          log(`💥 Could not load seq file from ${seqFile} - ${err}`)
-          return callback(0) // eslint-disable-line standard/no-callback-literal
-        }
+    async read () {
+      try {
+        const data = await s3.getObject({
+          Key: seqFile
+        })
 
         const seq = data.Body.toString('utf8')
 
-        return callback(parseInt(seq, 10))
-      })
+        return parseInt(seq, 10)
+      } catch (err) {
+        log(`💥 Could not load seq file from ${seqFile} - ${err}`)
+
+        return 0
+      }
     },
-    write: (data, callback) => {
-      s3.putObject({
+    async write (data) {
+      await s3.putObject({
         Key: seqFile,
         Body: data.toString()
-      }, callback)
+      })
     },
-    rm: (callback) => {
-      s3.deleteObject({
+    async reset () {
+      await s3.deleteObject({
         Key: seqFile
-      }, callback)
+      })
     }
   }
 }
