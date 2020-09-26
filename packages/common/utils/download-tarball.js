@@ -22,7 +22,7 @@ const downloadTarball = async (packument, versionNumber, ipfs, options) => {
 
   version.cid = `/ipfs/${cid}`
 
-  log(`🏄‍♀️ Added ${version.tarball} with CID ${version.cid} in ${Date.now() - start}ms`)
+  log(`🏄‍♀️ Added ${version.dist.tarball} with CID ${version.cid} in ${Date.now() - start}ms`)
 }
 
 const validate = (version, versionNumber, packageName) => {
