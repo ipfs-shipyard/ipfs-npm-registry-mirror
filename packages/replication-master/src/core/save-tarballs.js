@@ -67,7 +67,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
 
       return cid
     } catch (err) {
-      log(`💥 Downloading tarballs failed: ${err.message} ${err.stack}`)
+      log(`💥 Downloading tarballs failed`, err)
     }
   }
 

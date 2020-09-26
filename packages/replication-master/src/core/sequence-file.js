@@ -25,7 +25,7 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
     }
   }
 
-  log('☁️  Using s3 sequence file')
+  log('☁️  Using s3 sequence file', seqFile)
 
   const s3 = new S3({
     params: {
@@ -47,21 +47,30 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
 
         return parseInt(seq, 10)
       } catch (err) {
-        log(`💥 Could not load seq file from ${seqFile} - ${err}`)
+        log(`💥 Could not load seq file from ${seqFile}`, err)
 
         return 0
       }
     },
     async write (data) {
-      await s3.putObject({
-        Key: seqFile,
-        Body: data.toString()
-      })
+      log(`Writing sequence file ${data} ${seqFile}`)
+      try {
+        await s3.putObject({
+          Key: seqFile,
+          Body: `${data}`
+        })
+      } catch (err) {
+        log(`💥 Could not write seq file to ${seqFile}`, err)
+      }
     },
     async reset () {
-      await s3.deleteObject({
-        Key: seqFile
-      })
+      try {
+        await s3.deleteObject({
+          Key: seqFile
+        })
+      } catch (err) {
+        log(`💥 Could not reset seq file at ${seqFile}`, err)
+      }
     }
   }
 }

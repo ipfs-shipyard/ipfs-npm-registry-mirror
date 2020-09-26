@@ -67,7 +67,7 @@ const downloadFile = async (url, shasum, ipfs, options) => {
 
       return cid
     } catch (err) {
-      log(`💥 Download failed: ${err.message}`)
+      log(`💥 Download failed`, err)
     }
   }
 
