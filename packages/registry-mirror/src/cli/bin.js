@@ -45,6 +45,10 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'How large a file upload to allow when proxying for the registry',
       default: '1024MB'
     })
+    .option('registry-read-timeout', {
+      describe: 'How long to wait for registry requests',
+      default: 60000
+    })
 
     .option('http-protocol', {
       describe: 'Which protocol to use with the server',

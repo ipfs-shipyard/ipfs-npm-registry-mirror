@@ -40,6 +40,10 @@ yargs.command('$0', 'Starts a registry server that uses IPFS to fetch js depende
       describe: 'Only request the manifest for a given module every so many ms',
       default: 60000
     })
+    .option('registry-read-timeout', {
+      describe: 'How long to wait for registry requests',
+      default: 60000
+    })
 
     .option('http-protocol', {
       describe: 'Which protocol to use with the server',
