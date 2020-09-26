@@ -41,7 +41,7 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
       try {
         const data = await s3.getObject({
           Key: seqFile
-        })
+        }).promise()
 
         const seq = data.Body.toString('utf8')
 
@@ -53,12 +53,11 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
       }
     },
     async write (data) {
-      log(`Writing sequence file ${data} ${seqFile}`)
       try {
         await s3.putObject({
           Key: seqFile,
           Body: `${data}`
-        })
+        }).promise()
       } catch (err) {
         log(`💥 Could not write seq file to ${seqFile}`, err)
       }
@@ -67,7 +66,7 @@ module.exports = ({ ipfs: { store, s3: { bucket, region, accessKeyId, secretAcce
       try {
         await s3.deleteObject({
           Key: seqFile
-        })
+        }).promise()
       } catch (err) {
         log(`💥 Could not reset seq file at ${seqFile}`, err)
       }
