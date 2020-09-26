@@ -54,7 +54,7 @@ module.exports = (config, ipfs, app, root, topic) => {
 
       response.statusCode = 200
       response.setHeader('Content-type', 'application/json; charset=utf-8')
-      response.send(JSON.stringify(info, null, request.query.format === undefined ? 0 : 2))
+      response.send(JSON.stringify(info, null, 2))
     } catch (error) {
       response.statusCode = 500
       response.setHeader('Content-type', 'application/text; charset=utf-8')

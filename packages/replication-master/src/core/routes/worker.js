@@ -18,6 +18,6 @@ module.exports = () => {
 
     response.statusCode = 200
     response.setHeader('Content-type', 'application/json; charset=utf-8')
-    response.send(JSON.stringify(info, null, request.query.format === undefined ? 0 : 2))
+    response.send(JSON.stringify(info, null, 2))
   }
 }

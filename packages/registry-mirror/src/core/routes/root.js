@@ -46,6 +46,6 @@ module.exports = (config, ipfs, app, worker) => {
   return async (request, response, next) => {
     response.statusCode = 200
     response.setHeader('Content-type', 'application/json; charset=utf-8')
-    response.send(JSON.stringify(await findInfo(config, request.app.locals.ipfs, worker), null, request.query.format === undefined ? 0 : 2))
+    response.send(JSON.stringify(await findInfo(config, request.app.locals.ipfs, worker), null, 2))
   }
 }
